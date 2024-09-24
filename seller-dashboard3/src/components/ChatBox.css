@@ -1,0 +1,49 @@
+/* ChatBox.css */
+.chatbox-container {
+  border: 1px solid #ddd; /* Light border for the chatbox */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #fff; /* White background for better readability */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 10px;
+  margin-top: 20px; /* Space from the product details */
+}
+
+.chatbox-header {
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chatbox-messages {
+  height: 200px; /* Fixed height with scroll */
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chatbox-input-container {
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding-top: 5px;
+}
+
+.chatbox-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.chatbox-send-button {
+  background-color: #007bff; /* Primary color for the button */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.chatbox-send-button:hover {
+  background-color: #0056b3; /* Darker color on hover */
+}

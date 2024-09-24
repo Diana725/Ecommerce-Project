@@ -1,0 +1,17 @@
+.delete {
+  background-color: #9b2121;
+  color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.update {
+  background-color: rgb(58, 58, 245);
+  color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
