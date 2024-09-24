@@ -1,0 +1,75 @@
+/* Add this CSS to your stylesheet or in a styled component */
+
+/* Container for navbar links */
+.navbar-nav .nav-link {
+    position: relative;
+    font-size: 18px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Hover effect - moves text slightly up */
+  .navbar-nav .nav-link:hover {
+    transform: translateY(-5px);
+  }
+  
+  .icon {
+    height: 35px;
+    width: 40px;
+  }
+  /* Active link underline effect */
+  .navbar-nav .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: #000; /* Customize the color of the underline */
+    transition: width 0.3s ease-in-out;
+    width: 100%;
+  }
+  
+  /* Animation for the underline when a link is active */
+  .navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    bottom: 0;
+    height: 2px;
+    background-color: transparent;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Effect for hovering over the link */
+  /* .navbar-nav .nav-link:hover::after {
+    left: 0;
+    right: 0;
+    background-color: #000;
+    width: 100%;
+  } */
+  .dropdown-toggle-split {
+    margin-left: 5px; /* Adjust space between the icon and the arrow */
+  }
+  
+  .btn-outline-dark {
+    display: flex;
+    align-items: center;
+  }
+  
+  .btn-outline-dark i {
+    margin-right: 5px; /* Space between icon and text */
+  }
+  
+  .btn-outline-dark .dropdown-toggle::after {
+    margin-left: 0; /* Remove default margin */
+  }
+
+  .navbar .navbar-nav + .d-flex {
+    margin-left: 100px; /* Adjust the value as needed */
+  }
+
+  .nav-item:last-child {
+    margin-right: 20px; /* Adjust the value as needed */
+  }

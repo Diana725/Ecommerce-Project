@@ -1,0 +1,54 @@
+/* Styles for the banner container */
+.banner-container {
+    position: relative;
+    background-color: #f8f0f1; /* Light red background color */
+    color: #161111; /* Dark red text color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom: 1px solid #f5c6cb; /* Light border for separation */
+  }
+  
+  /* Styles for the banner text */
+  .banner-text {
+    margin: 0;
+    text-align: center;
+  }
+
+  .logo {
+    font-weight: bold;
+  }
+  
+  /* Button link styling */
+  .banner-button {
+    background-color: #212325; /* Blue background */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .banner-button:hover {
+    background-color: #ffffff; /* Darker blue on hover */
+    color: black;
+    border: 1px solid #212325;
+  }
+  
+  /* Styles for the close button (x) */
+  .close-banner {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #721c24;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+  
