@@ -47,20 +47,20 @@ class PaymentController extends Controller
             ->get();
 
         // Transform the data to include product and farmer names
-        $payments = $payments->map(function ($payment) {
-            return [
-                'id' => $payment->id,
-                'payment_reference' => $payment->payment_reference,
-                'status' => $payment->status,
-                'proof_of_payment' => $payment->proof_of_payment,
-                'product' => [
-                    'name' => $payment->product->name, // Fetch product name
-                ],
-                'farmer' => [
-                    'name' => $payment->farmer->name, // Fetch farmer name
-                ],
-            ];
-        });
+        // $payments = $payments->map(function ($payment) {
+        //     return [
+        //         'id' => $payment->id,
+        //         'payment_reference' => $payment->payment_reference,
+        //         'status' => $payment->status,
+        //         'proof_of_payment' => $payment->proof_of_payment,
+        //         'product' => [
+        //             'name' => $payment->product->name, // Fetch product name
+        //         ],
+        //         'farmer' => [
+        //             'name' => $payment->farmer->name, // Fetch farmer name
+        //         ],
+        //     ];
+        // });
 
         return response()->json($payments);
     }
@@ -134,4 +134,46 @@ class PaymentController extends Controller
             'hasNewPayments' => $newPaymentsCount > 0
         ]);
     }
+
+
+    //New Controller Functions
+
+    public function updateDeliveryStatusToShipped(Request $request, $id)
+    {
+        $farmer = auth()->guard('sanctum')->user();
+    
+        $orderPayment = OrderPayment::where('farmer_id', $farmer->id)->find($id);
+    
+        if ($orderPayment) {
+            $orderPayment->delivery_status = 'Shipped';
+            $orderPayment->tracking_number = $request->input('tracking_number');
+            $orderPayment->delivery_service = $request->input('delivery_service');
+            $orderPayment->save();
+    
+            return response()->json(['message' => 'Delivery status updated to Shipped!']);
+        }
+    
+        return response()->json(['message' => 'Order not found or you do not have permission to update this order'], 404);
+    }
+    
+
+
+public function updateDeliveryStatusToDelivered($id)
+{
+    // Ensure only authenticated buyers can perform this action
+    $buyer = auth()->guard('buyer')->user();
+
+    $orderPayment = OrderPayment::where('buyer_id', $buyer->id)->find($id);
+
+    if ($orderPayment && $orderPayment->delivery_status === 'Shipped') {
+        $orderPayment->delivery_status = 'Delivered';
+        $orderPayment->save();
+
+        return response()->json(['message' => 'Delivery status updated to Delivered!']);
+    }
+
+    return response()->json(['message' => 'Order not found or it has not been shipped yet'], 404);
+}
+
+
 }

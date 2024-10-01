@@ -63,7 +63,7 @@ const Navbar = () => {
       <nav className="navbar navbar-expand-lg navbar-light bg-white py-2 shadow-sm">
         <div className="container">
           <img className="icon" src="../../assets/corn.png" alt="Logo" />
-          <NavLink className="navbar-brand fw-bold fs-3" to="/">
+          <NavLink className="navbar-brand fw-bold fs-3 pl-3" to="/">
             MaizeAI
           </NavLink>
           <button
@@ -106,12 +106,13 @@ const Navbar = () => {
                   Price Predictions
                 </NavLink>
               </li>
-              {/* Payment Details link with blue dot if there are new payments */}
-              <li className="nav-item">
+              {/* Payment Details and Delivery Zones links side by side */}
+              <li className="nav-item d-flex align-items-center">
                 <NavLink
                   className="nav-link"
                   to="/farmer/payments"
                   activeClassName="active"
+                  style={{ marginRight: "20px" }}
                 >
                   Payment Details{" "}
                   {hasNewPayments && <span className="blue-dot"></span>}

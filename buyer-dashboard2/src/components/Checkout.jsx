@@ -13,7 +13,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [paymentProofs, setPaymentProofs] = useState({});
-  const [deliveryFees, setDeliveryFees] = useState({}); // To store delivery fees for each product
+  const [deliveryFees, setDeliveryFees] = useState({});
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -79,7 +79,6 @@ const Checkout = () => {
     }));
   };
 
-  // Callback to update delivery fee state
   const updateDeliveryFee = (productId, fee) => {
     setDeliveryFees((prev) => ({
       ...prev,
@@ -105,27 +104,40 @@ const Checkout = () => {
             Total Amount: Ksh{" "}
             {(() => {
               let totalAmount = 0;
-
               products.forEach((item) => {
                 const productPrice =
-                  parseFloat(item.productDetails?.price) || 0; // Ensure it's a number
-                const deliveryFee = deliveryFees[item.product.id] || 0; // Ensure it's a number
+                  parseFloat(item.productDetails?.price) || 0;
+                const deliveryFee = deliveryFees[item.product.id] || 0;
                 totalAmount +=
                   Number(item.quantity * item.productDetails.price) +
-                  Number(deliveryFee); // Sum correctly
+                  Number(deliveryFee);
               });
-              return Number(totalAmount).toFixed(2); // Format to 2 decimal places
+              return Number(totalAmount).toFixed(2);
             })()}
           </h4>
 
-          {/* Horizontal line for separation */}
           <hr />
 
           <h4 className="mb-3">Product Details</h4>
           <ul className="list-group">
-            {products.map((item) => (
+            {products.map((item, index) => (
               <li key={item.product.id} className="list-group-item">
-                <h5>{item.productDetails.name}</h5>
+                <div className="d-flex align-items-center mb-3">
+                  {/* Product numbering */}
+                  <strong className="me-2 fs-3">#{index + 1}</strong>
+                  {/* Display product image */}
+                  <h5 className="fs-1 fw-bold">{item.productDetails.name}</h5>
+                  <img
+                    src={`http://localhost:8000/${item.productDetails.file_path}`}
+                    alt={item.productDetails.name}
+                    style={{
+                      width: "200px",
+                      height: "150px",
+                      marginLeft: "400px",
+                      marginTop: "10px",
+                    }}
+                  />
+                </div>
                 <p>Price: Ksh {item.productDetails.price * item.quantity}</p>
                 <p>Quantity: {item.quantity}</p>
 
@@ -133,9 +145,8 @@ const Checkout = () => {
                   farmerId={item.productDetails.user_id}
                   onFeeCalculated={(fee) =>
                     updateDeliveryFee(item.product.id, fee)
-                  } // Pass callback to update delivery fee
+                  }
                 />
-                {/* Display the calculated delivery fee */}
                 {deliveryFees[item.product.id] !== undefined && (
                   <p>
                     <strong>Delivery Fee:</strong> Ksh{" "}
@@ -143,17 +154,16 @@ const Checkout = () => {
                   </p>
                 )}
 
-                {/* Calculate total price per item (price + delivery fee) */}
                 <p>
                   <strong>Total Price:</strong> Ksh{" "}
                   {(() => {
                     const productPrice =
-                      parseFloat(item.productDetails.price) || 0; // Ensure it's a number
+                      parseFloat(item.productDetails.price) || 0;
                     const deliveryFee =
-                      Number(deliveryFees[item.product.id]) || 0; // Ensure it's a number
+                      Number(deliveryFees[item.product.id]) || 0;
                     return Number(
                       productPrice * item.quantity + deliveryFee
-                    ).toFixed(2); // Format to 2 decimal places
+                    ).toFixed(2);
                   })()}
                 </p>
 

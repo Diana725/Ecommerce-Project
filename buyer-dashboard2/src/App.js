@@ -22,6 +22,7 @@ import SearchResults from "./components/Search.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import PaymentDetails from "./components/PaymentDetails.jsx";
 import PaymentHistory from "./components/PaymentHistory.jsx";
+import DeliveryTrackingBuyer from "./components/DeliveryTrackingBuyer.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -43,6 +44,10 @@ const App = () => {
         {/* <Route path="/price_predictions" element={<PricePredictions />} /> */}
         <Route path="/about" element={<About />} />
         <Route path="/products/:id" element={<Product />} />
+        <Route
+          path="/delivery-tracking/:paymentId"
+          element={<DeliveryTrackingBuyer />}
+        />
         <Route
           path="/cart"
           element={

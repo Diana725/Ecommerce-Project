@@ -58,19 +58,30 @@ const PaymentDetails = () => {
               {/* Product Name */}
               <p>Farmer's Name: {paymentDetails.farmer_name}</p>{" "}
               {/* Farmer's Name */}
+              <p>Farmer's Number: {paymentDetails.farmer_id}</p>{" "}
+              {/* Farmer's Contact */}
               {/* Additional payment details can be displayed here */}
             </div>
           ) : (
             <p>No payment details found.</p>
           )}
 
-          {/* Back to Home or Orders */}
+          {/* Back to Checkout */}
           <Button
             variant="dark"
             className="mt-3 mb-5 w-100"
             onClick={() => navigate("/checkout")} // Use navigate here
           >
             Back to Checkout
+          </Button>
+
+          {/* Track Delivery Button */}
+          <Button
+            variant="success"
+            className="mt-2 w-100"
+            onClick={() => navigate(`/delivery-tracking/${paymentId}`)} // Redirect to delivery tracking page
+          >
+            Track Delivery
           </Button>
         </div>
       </div>

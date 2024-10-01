@@ -13,6 +13,8 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DeliveryZoneController;
 use App\Http\Controllers\DeliveryFeeController;
+use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\ReviewController;
 
 // Routes that don't need authentication
 Route::post('/login', [UserController::class, 'login']);
@@ -24,18 +26,9 @@ Route::post('/buyerLogin', [BuyerController::class, 'buyerLogin']);
 Route::get('list', [ProductController::class, 'list']);
 Route::get('/buyerSearch', [BuyerController::class, 'searchProducts']);
 Route::post('/farmer/sendMessage', [ChatController::class, 'farmerSendMessage']);
-    Route::get('/farmer/getMessages/{recipientId}', [ChatController::class, 'farmerGetMessages']);
-    Route::get('/buyer/getMessages/{recipientId}', [ChatController::class, 'buyerGetMessages']);
-
-
-
-    //new routes
-    // Route::post('/seller/sendMessage', [MessageController::class, 'storeSellerMessage']);
-    // Route::get('/seller/getMessages/{sellerId}', [MessageController::class, 'getSellerMessages']);
-    // Route::post('/buyer/sendMessage', [MessageController::class, 'storeBuyerMessage']);
-    // Route::get('/buyer/getMessages/{buyerId}', [MessageController::class, 'getBuyerMessages']);
-   
-
+Route::get('/farmer/getMessages/{recipientId}', [ChatController::class, 'farmerGetMessages']);
+Route::get('/buyer/getMessages/{recipientId}', [ChatController::class, 'buyerGetMessages']);
+Route::post('/farmer/delivery', [DeliveryController::class, 'createDelivery']);
 
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
@@ -59,6 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
     //delivery routes
     Route::post('/farmer/delivery-zones', [DeliveryZoneController::class, 'store']);
     Route::get('/farmer/delivery-zones', [DeliveryZoneController::class, 'index']);
+    Route::get('/farmer/delivery/{paymentId}', [DeliveryController::class, 'showFarmerDelivery']);
+    Route::post('/farmer/delivery/release/{paymentId}', [DeliveryController::class, 'releaseForDelivery']);
+
+
+    //new route for delivery
+    Route::put('/order-payments/{id}/ship', [PaymentController::class, 'updateDeliveryStatusToShipped']);
+
+    //new route for reviews
+    Route::get('/farmer/{farmerId}/average-rating', [ReviewController::class, 'getAverageRatingForFarmer']);
 });
 
 // Protected routes for authenticated buyers
@@ -83,4 +85,13 @@ Route::middleware(['auth:buyer'])->group(function () {
 
     //delivery route
     Route::post('/buyer/calculate-delivery-fee', [DeliveryFeeController::class, 'calculate']);
+    Route::get('/buyer/delivery/{paymentId}', [DeliveryController::class, 'showBuyerDelivery']);
+    Route::post('/buyer/delivery/confirm/{paymentId}', [DeliveryController::class, 'confirmDelivery']);
+
+    //new route for delivery
+    Route::put('/order-payments/{id}/deliver', [PaymentController::class, 'updateDeliveryStatusToDelivered']);
+
+    //routes for reviewsRoute::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
+    Route::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
+    Route::post('reviews', [ReviewController::class, 'store']); 
 });

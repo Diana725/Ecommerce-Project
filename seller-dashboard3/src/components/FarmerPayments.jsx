@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button } from "react-bootstrap"; // Import Bootstrap Table and Button
+import { Table, Button, Modal, Form } from "react-bootstrap"; // Import Modal and Form
+import { useNavigate } from "react-router-dom";
 
 const FarmerPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false); // State for the modal
+  const [selectedPayment, setSelectedPayment] = useState(null); // State for the selected payment
+  const [trackingNumber, setTrackingNumber] = useState(""); // State for tracking number
+  const [deliveryService, setDeliveryService] = useState(""); // State for delivery service
 
-  // Fetch payments from the API
   const fetchPayments = async () => {
     try {
       const response = await fetch(
@@ -32,16 +36,9 @@ const FarmerPayments = () => {
   };
 
   useEffect(() => {
-    // Initial fetch when the component is mounted
-    fetchPayments();
-
-    // Set an interval to fetch payments every 10 seconds (10000 ms)
-    const intervalId = setInterval(() => {
-      fetchPayments();
-    }, 10000); // Adjust the interval as needed
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
+    fetchPayments(); // Initial fetch
+    const intervalId = setInterval(fetchPayments, 15000); // Fetch payments every 15 seconds
+    return () => clearInterval(intervalId); // Clear interval on component unmount
   }, []);
 
   const confirmPayment = async (paymentId) => {
@@ -63,12 +60,55 @@ const FarmerPayments = () => {
         throw new Error(errorData.message || "Failed to confirm payment");
       }
 
-      // After confirmation, trigger immediate fetch to get the latest payment details
       fetchPayments();
-
       alert("Payment confirmed successfully!");
     } catch (err) {
       console.error("Confirmation Error:", err);
+      alert(err.message);
+    }
+  };
+
+  const handleShowModal = (payment) => {
+    setSelectedPayment(payment); // Set the selected payment for delivery details
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setTrackingNumber(""); // Reset tracking number
+    setDeliveryService(""); // Reset delivery service
+  };
+
+  const handleSubmitDeliveryDetails = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/order-payments/${selectedPayment.id}/ship`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            tracking_number: trackingNumber,
+            delivery_service: deliveryService,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to update delivery status"
+        );
+      }
+
+      fetchPayments(); // Refresh payments
+      handleCloseModal(); // Close the modal
+      alert("Delivery status updated successfully!");
+    } catch (err) {
+      console.error("Update Error:", err);
       alert(err.message);
     }
   };
@@ -87,40 +127,88 @@ const FarmerPayments = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>Payment Reference</th>
             <th>Status</th>
             <th>Proof of Payment</th>
-            <th>Product Name</th> {/* New column for Product Name */}
-            <th>Buyer Name</th> {/* New column for Buyer Name */}
+            <th>Product Name</th>
+            <th>Buyer Name</th>
             <th>Action</th>
+            <th>Delivery Status</th> {/* New Column */}
+            <th>Tracking Number</th> {/* New Column */}
+            <th>Delivery Service</th> {/* New Column */}
           </tr>
         </thead>
         <tbody>
           {payments.map((payment) => (
             <tr key={payment.id}>
-              <td>{payment.payment_reference}</td>
-              <td>{payment.status}</td>
-              <td>{payment.proof_of_payment || "No proof uploaded"}</td>
-              <td>{payment.product.name}</td> {/* Display product name */}
-              <td>{payment.buyer.name}</td> {/* Display buyer's name */}
               <td>
-                {payment.status === "Payment Pending" ? (
+                {payment.status}
+                {payment.status === "Payment Pending" && (
                   <Button
-                    className="btn-success" // Bootstrap class for green button
+                    className="btn-success ms-2"
                     onClick={() => confirmPayment(payment.id)}
                   >
                     Confirm Payment
                   </Button>
-                ) : (
-                  <Button disabled className="btn-secondary">
-                    Payment Confirmed
-                  </Button>
                 )}
               </td>
+              <td>{payment.proof_of_payment || "No proof uploaded"}</td>
+              <td>{payment.product.name}</td>
+              <td>{payment.buyer.name}</td>
+              <td>
+                <Button
+                  className="btn-info"
+                  onClick={() => handleShowModal(payment)}
+                  disabled={
+                    payment.status !== "Payment Confirmed" ||
+                    payment.delivery_status === "Shipped" ||
+                    payment.delivery_status === "Delivered"
+                  } // Disable button until payment is confirmed
+                >
+                  Update Delivery Details
+                </Button>
+              </td>
+              <td>{payment.delivery_status || "Not Shipped"}</td>{" "}
+              {/* Display Delivery Status */}
+              <td>{payment.tracking_number || "N/A"}</td>{" "}
+              {/* Display Tracking Number */}
+              <td>{payment.delivery_service || "N/A"}</td>{" "}
+              {/* Display Delivery Service */}
             </tr>
           ))}
         </tbody>
       </Table>
+
+      {/* Modal for Delivery Details */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Delivery Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmitDeliveryDetails}>
+            <Form.Group controlId="trackingNumber">
+              <Form.Label>Tracking Number</Form.Label>
+              <Form.Control
+                type="text"
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="deliveryService">
+              <Form.Label>Delivery Service</Form.Label>
+              <Form.Control
+                type="text"
+                value={deliveryService}
+                onChange={(e) => setDeliveryService(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { addToCart } from "../redux/action";
 import Skeleton from "react-loading-skeleton";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import ChatBox from "./ChatBox"; // Import the ChatBox component
+import Reviews from "./Reviews";
 
 const Product = () => {
   const { id } = useParams();
@@ -77,7 +78,7 @@ const Product = () => {
   const ShowProduct = () => {
     if (!product) return null;
 
-    const farmerId = product.user_id; // Get the farmer ID from the product data
+    // const farmerId = product.user_id; // Get the farmer ID from the product data
 
     return (
       <>
@@ -103,9 +104,9 @@ const Product = () => {
             Go to Cart
           </NavLink>
           {/* Pass the product ID to the ChatBox */}
-          <div className="mt-4">
-            <ChatBox productId={product.id} /> {/* Pass product ID */}
-          </div>
+          {/* <div className="mt-4">
+            <ChatBox productId={product.id} /> Pass product ID */}
+          {/* </div> */}
         </div>
       </>
     );
@@ -127,6 +128,7 @@ const Product = () => {
         </div>
       </div>
       <hr />
+      <Reviews productId={product.id} />
     </div>
   );
 };

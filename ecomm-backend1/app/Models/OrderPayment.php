@@ -18,6 +18,11 @@ class OrderPayment extends Model
         'payment_reference',
         'proof_of_payment',
         'status',
+        'delivery_status',  // New field
+        'review_submitted',
+        'tracking_number',  // New field
+        'delivery_service',  // New field
+        
     ];
 
     public function buyer()

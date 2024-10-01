@@ -14,6 +14,7 @@ import Home from "./components/Home/Home";
 import ChatPage from "./components/ChatPage";
 import FarmerPayments from "./components/FarmerPayments";
 import DeliveryZones from "./components/DeliveryZones";
+import DeliveryTrackingFarmer from "./components/DeliveryTrackingFarmer";
 
 function App() {
   return (
@@ -31,6 +32,10 @@ function App() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/add" element={<AddProduct />} />
           <Route path="/price_prediction" element={<PricePredictions />} />
+          <Route
+            path="/farmer/delivery/:paymentId"
+            element={<DeliveryTrackingFarmer />}
+          />
           <Route path="/update/:id" element={<UpdateProduct />} />
           <Route path="/delivery-zones" element={<DeliveryZones />} />
         </Routes>
