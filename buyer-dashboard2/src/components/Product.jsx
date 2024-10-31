@@ -78,8 +78,6 @@ const Product = () => {
   const ShowProduct = () => {
     if (!product) return null;
 
-    // const farmerId = product.user_id; // Get the farmer ID from the product data
-
     return (
       <>
         <div className="col-md-6">
@@ -103,10 +101,6 @@ const Product = () => {
           <NavLink to="/cart" className="btn btn-dark ms-2 px-3 py-2">
             Go to Cart
           </NavLink>
-          {/* Pass the product ID to the ChatBox */}
-          {/* <div className="mt-4">
-            <ChatBox productId={product.id} /> Pass product ID */}
-          {/* </div> */}
         </div>
       </>
     );
@@ -128,7 +122,8 @@ const Product = () => {
         </div>
       </div>
       <hr />
-      <Reviews productId={product.id} />
+      {/* Conditionally render the Reviews component after product data is available */}
+      {product && <Reviews productId={product.id} />}
     </div>
   );
 };

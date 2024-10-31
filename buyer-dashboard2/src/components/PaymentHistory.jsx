@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form } from "react-bootstrap"; // Added Modal and Form for review functionality
-import StarRatings from "react-star-ratings"; // Star rating component
+import { Table, Button, Modal, Form } from "react-bootstrap";
+import StarRatings from "react-star-ratings";
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
@@ -15,11 +15,11 @@ const PaymentHistory = () => {
     const fetchPayments = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/buyer/payment/history", // API for fetching buyer's payment history
+          "http://localhost:8000/api/buyer/payment/history",
           {
             method: "GET",
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // Buyer authentication token
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -38,26 +38,19 @@ const PaymentHistory = () => {
     };
 
     fetchPayments();
-
-    // Set an interval to fetch payments every 5 minutes to avoid frequent updates
-    const intervalId = setInterval(() => {
-      fetchPayments();
-    }, 300000); // 5 minutes
-
-    // Cleanup interval on component unmount
+    const intervalId = setInterval(fetchPayments, 300000);
     return () => clearInterval(intervalId);
   }, []);
 
-  // Function to update the delivery status to "Delivered"
   const markAsDelivered = async (paymentId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/order-payments/${paymentId}/deliver`, // Updated route to mark as delivered
+        `http://localhost:8000/api/order-payments/${paymentId}/deliver`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Buyer authentication token
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -66,7 +59,6 @@ const PaymentHistory = () => {
         throw new Error("Failed to update delivery status");
       }
 
-      // Refresh the payments list to reflect the updated delivery status
       setPayments((prevPayments) =>
         prevPayments.map((payment) =>
           payment.id === paymentId
@@ -79,20 +71,17 @@ const PaymentHistory = () => {
     }
   };
 
-  // Open review modal
   const handleOpenReviewModal = (paymentId) => {
     setSelectedPaymentId(paymentId);
     setShowReviewModal(true);
   };
 
-  // Close review modal
   const handleCloseReviewModal = () => {
     setShowReviewModal(false);
     setRating(0);
     setReview("");
   };
 
-  // Submit review
   const handleSubmitReview = async () => {
     try {
       const response = await fetch("http://localhost:8000/api/reviews", {
@@ -102,7 +91,7 @@ const PaymentHistory = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          order_payment_id: selectedPaymentId,
+          order_payment_id: selectedPaymentId, // Updated key to match your controller
           review,
           rating,
         }),
@@ -112,7 +101,7 @@ const PaymentHistory = () => {
         throw new Error("Failed to submit review");
       }
 
-      // Refresh payment list to show that review is submitted
+      // Update the payments state to reflect that the review has been submitted
       setPayments((prevPayments) =>
         prevPayments.map((payment) =>
           payment.id === selectedPaymentId
@@ -148,7 +137,7 @@ const PaymentHistory = () => {
               <th>Status</th>
               <th>Proof of Payment</th>
               <th>Product Name</th>
-              <th>Farmer's Name</th>
+              <th>Delivery Location</th>
               <th>Delivery Status</th>
               <th>Tracking Number</th>
               <th>Delivery Service</th>
@@ -162,12 +151,15 @@ const PaymentHistory = () => {
                 <td>{payment.status}</td>
                 <td>{payment.proof_of_payment || "Not provided"}</td>
                 <td>{payment.product.name}</td>
-                <td>{payment.farmer.name}</td>
+                <td>
+                  {payment.delivery_location
+                    ? payment.delivery_location.location_name
+                    : "N/A"}
+                </td>
                 <td>{payment.delivery_status}</td>
                 <td>{payment.tracking_number || "N/A"}</td>
                 <td>{payment.delivery_service || "N/A"}</td>
                 <td>
-                  {/* Button to update status to "Delivered" */}
                   <Button
                     variant="success"
                     onClick={() => markAsDelivered(payment.id)}
@@ -177,7 +169,6 @@ const PaymentHistory = () => {
                   </Button>
                 </td>
                 <td>
-                  {/* Button to add review */}
                   {payment.delivery_status === "Delivered" &&
                     !payment.review_submitted && (
                       <Button
@@ -200,7 +191,6 @@ const PaymentHistory = () => {
         </Table>
       )}
 
-      {/* Review Modal */}
       <Modal show={showReviewModal} onHide={handleCloseReviewModal}>
         <Modal.Header closeButton>
           <Modal.Title>Submit a Review</Modal.Title>

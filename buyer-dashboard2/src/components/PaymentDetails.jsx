@@ -54,12 +54,10 @@ const PaymentDetails = () => {
             <div>
               <h4>Payment Status: {paymentDetails.status}</h4>
               <p>Payment Code: {paymentDetails.proof_of_payment}</p>
-              <p>Product Name: {paymentDetails.product_name}</p>{" "}
-              {/* Product Name */}
-              <p>Farmer's Name: {paymentDetails.farmer_name}</p>{" "}
-              {/* Farmer's Name */}
-              <p>Farmer's Number: {paymentDetails.farmer_id}</p>{" "}
-              {/* Farmer's Contact */}
+              <p>Product Name: {paymentDetails.product_name}</p>
+              {/* <p>Farmer's Name: {paymentDetails.farmer_name}</p> */}
+              <p>Delivery Zone: {paymentDetails.delivery_zone_name}</p>
+              <p>Delivery Location: {paymentDetails.delivery_location_name}</p>
               {/* Additional payment details can be displayed here */}
             </div>
           ) : (
@@ -79,7 +77,7 @@ const PaymentDetails = () => {
           <Button
             variant="success"
             className="mt-2 w-100"
-            onClick={() => navigate(`/delivery-tracking/${paymentId}`)} // Redirect to delivery tracking page
+            onClick={() => navigate("/payment-history")} // Redirect to delivery tracking page
           >
             Track Delivery
           </Button>
