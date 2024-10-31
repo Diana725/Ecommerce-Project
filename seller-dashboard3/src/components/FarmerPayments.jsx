@@ -130,11 +130,12 @@ const FarmerPayments = () => {
             <th>Status</th>
             <th>Proof of Payment</th>
             <th>Product Name</th>
-            <th>Buyer Name</th>
+            <th>Delivery Zone</th>
+            <th>Delivery Location</th>
             <th>Action</th>
-            <th>Delivery Status</th> {/* New Column */}
             <th>Tracking Number</th> {/* New Column */}
             <th>Delivery Service</th> {/* New Column */}
+            <th>Delivery Status</th> {/* New Column */}
           </tr>
         </thead>
         <tbody>
@@ -153,7 +154,8 @@ const FarmerPayments = () => {
               </td>
               <td>{payment.proof_of_payment || "No proof uploaded"}</td>
               <td>{payment.product.name}</td>
-              <td>{payment.buyer.name}</td>
+              <td>{payment.delivery_zone.zone_name}</td>
+              <td>{payment.delivery_location.location_name}</td>
               <td>
                 <Button
                   className="btn-info"
@@ -167,12 +169,12 @@ const FarmerPayments = () => {
                   Update Delivery Details
                 </Button>
               </td>
-              <td>{payment.delivery_status || "Not Shipped"}</td>{" "}
-              {/* Display Delivery Status */}
               <td>{payment.tracking_number || "N/A"}</td>{" "}
               {/* Display Tracking Number */}
               <td>{payment.delivery_service || "N/A"}</td>{" "}
               {/* Display Delivery Service */}
+              <td>{payment.delivery_status || "Not Shipped"}</td>{" "}
+              {/* Display Delivery Status */}
             </tr>
           ))}
         </tbody>
