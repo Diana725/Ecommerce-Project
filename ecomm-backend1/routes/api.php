@@ -30,6 +30,9 @@ Route::get('/farmer/getMessages/{recipientId}', [ChatController::class, 'farmerG
 Route::get('/buyer/getMessages/{recipientId}', [ChatController::class, 'buyerGetMessages']);
 Route::post('/farmer/delivery', [DeliveryController::class, 'createDelivery']);
 
+Route::get('/buyers/farmers/{farmerId}/delivery-zones', [DeliveryZoneController::class, 'getFarmerDeliveryZones']);
+    Route::get('/buyers/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'getDeliveryLocationsByZone']);
+
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('addProduct', [ProductController::class, 'addProduct']);
@@ -50,11 +53,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/farmer/check-new-payments', [PaymentController::class, 'checkNewPayments']);
 
     //delivery routes
-    Route::post('/farmer/delivery-zones', [DeliveryZoneController::class, 'store']);
-    Route::get('/farmer/delivery-zones', [DeliveryZoneController::class, 'index']);
-    Route::get('/farmer/delivery/{paymentId}', [DeliveryController::class, 'showFarmerDelivery']);
-    Route::post('/farmer/delivery/release/{paymentId}', [DeliveryController::class, 'releaseForDelivery']);
-
+    // Route::post('/farmer/delivery-zones', [DeliveryZoneController::class, 'store']);
+    // Route::get('/farmer/delivery-zones', [DeliveryZoneController::class, 'index']);
+    // Route::get('/farmer/delivery/{paymentId}', [DeliveryController::class, 'showFarmerDelivery']);
+    // Route::post('/farmer/delivery/release/{paymentId}', [DeliveryController::class, 'releaseForDelivery']);
+    Route::get('/delivery-zones', [DeliveryZoneController::class, 'index']);
+    Route::post('/delivery-zones', [DeliveryZoneController::class, 'storeZone']);
+    Route::post('/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'storeLocation']);;
+    Route::get('/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'showLocations']);
+    Route::delete('/delivery-zones/{zoneId}/locations/{locationId}', [DeliveryZoneController::class, 'removeLocation']);
 
     //new route for delivery
     Route::put('/order-payments/{id}/ship', [PaymentController::class, 'updateDeliveryStatusToShipped']);
@@ -87,6 +94,11 @@ Route::middleware(['auth:buyer'])->group(function () {
     Route::post('/buyer/calculate-delivery-fee', [DeliveryFeeController::class, 'calculate']);
     Route::get('/buyer/delivery/{paymentId}', [DeliveryController::class, 'showBuyerDelivery']);
     Route::post('/buyer/delivery/confirm/{paymentId}', [DeliveryController::class, 'confirmDelivery']);
+    Route::get('/delivery-zones/{farmer_id}', [DeliveryZoneController::class, 'getDeliveryZones']);
+
+    //fetch delivery info with zones and locations
+    // Route::get('/buyers/farmers/{farmerId}/delivery-zones', [DeliveryZoneController::class, 'getFarmerDeliveryZones']);
+    // Route::get('/buyers/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'getDeliveryLocationsByZone']);
 
     //new route for delivery
     Route::put('/order-payments/{id}/deliver', [PaymentController::class, 'updateDeliveryStatusToDelivered']);
@@ -94,4 +106,6 @@ Route::middleware(['auth:buyer'])->group(function () {
     //routes for reviewsRoute::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
     Route::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
     Route::post('reviews', [ReviewController::class, 'store']); 
+    Route::post('/buyer/review', [PaymentController::class, 'submitReview']);
+
 });

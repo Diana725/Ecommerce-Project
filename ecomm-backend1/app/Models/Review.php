@@ -9,7 +9,8 @@ class Review extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_payment_id', 'buyer_id', 'review', 'rating'];
+    protected $fillable = ['order_payment_id', 'buyer_id', 'review', 'rating', 'product_id'];
+
 
     public function orderPayment()
     {
@@ -22,7 +23,8 @@ class Review extends Model
     }
 
     public function product()
-    {
-        return $this->hasOneThrough(Product::class, OrderPayment::class, 'id', 'id', 'order_payment_id', 'product_id');
-    }
+{
+    return $this->belongsTo(Product::class);
+}
+
 }

@@ -22,7 +22,8 @@ class OrderPayment extends Model
         'review_submitted',
         'tracking_number',  // New field
         'delivery_service',  // New field
-        
+        'delivery_zone_id',
+        'delivery_location_id',
     ];
 
     public function buyer()
@@ -38,5 +39,18 @@ class OrderPayment extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+    public function review()
+    {
+        return $this->belongsTo(Review::class, 'review_id');
+    }
+    public function deliveryZone()
+    {
+        return $this->belongsTo(FarmerDeliveryZone::class, 'delivery_zone_id');
+    }
+
+    public function deliveryLocation()
+    {
+        return $this->belongsTo(DeliveryLocation::class, 'delivery_location_id');
     }
 }
