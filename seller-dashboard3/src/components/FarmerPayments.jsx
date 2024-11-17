@@ -127,7 +127,8 @@ const FarmerPayments = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>Status</th>
+            <th>Status(Confirm Buyer's Payment)</th>
+            <th>Amount Paid</th>
             <th>Proof of Payment</th>
             <th>Product Name</th>
             <th>Delivery Zone</th>
@@ -152,6 +153,7 @@ const FarmerPayments = () => {
                   </Button>
                 )}
               </td>
+              <td>{payment.total_price}</td>
               <td>{payment.proof_of_payment || "No proof uploaded"}</td>
               <td>{payment.product.name}</td>
               <td>{payment.delivery_zone.zone_name}</td>
@@ -179,6 +181,8 @@ const FarmerPayments = () => {
           ))}
         </tbody>
       </Table>
+      <br />
+      <hr />
 
       {/* Modal for Delivery Details */}
       <Modal show={showModal} onHide={handleCloseModal}>
@@ -205,6 +209,7 @@ const FarmerPayments = () => {
                 required
               />
             </Form.Group>
+            <br />
             <Button variant="primary" type="submit">
               Submit
             </Button>

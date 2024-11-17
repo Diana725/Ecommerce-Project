@@ -286,6 +286,8 @@ const DeliveryZones = () => {
           </div>
         </div>
       )}
+      <br />
+      <hr />
     </div>
   );
 };

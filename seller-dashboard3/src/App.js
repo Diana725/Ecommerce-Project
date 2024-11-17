@@ -15,6 +15,7 @@ import ChatPage from "./components/ChatPage";
 import FarmerPayments from "./components/FarmerPayments";
 import DeliveryZones from "./components/DeliveryZones";
 import DeliveryTrackingFarmer from "./components/DeliveryTrackingFarmer";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         {/* Wrap your routes with the Layout component */}
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/password/reset-form" element={<ResetPassword />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/products" element={<ProductList />} />
@@ -31,7 +33,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/add" element={<AddProduct />} />
-          <Route path="/price_prediction" element={<PricePredictions />} />
+          <Route path="/price_predictions" element={<PricePredictions />} />
           <Route
             path="/farmer/delivery/:paymentId"
             element={<DeliveryTrackingFarmer />}

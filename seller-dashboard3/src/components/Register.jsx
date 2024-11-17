@@ -7,6 +7,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState(""); // Add state for phone number
+  const [message, setMessage] = useState(""); // State for the success or error message
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
@@ -38,8 +39,15 @@ const Register = () => {
       }
 
       let result = await response.json();
-      localStorage.setItem("user-info", JSON.stringify(result));
-      navigate("/products"); // Redirect to home page after successful registration
+      if (result.status === "success") {
+        setMessage("Registration successful! Please verify your email.");
+        // Optionally, you can redirect the user to a different page
+        setTimeout(() => navigate("/login"), 5000); // Redirect to login after 5 seconds
+      } else {
+        setMessage(
+          "Registration successful! Please check your inbox for email verification."
+        );
+      }
     } catch (error) {
       console.error("Error during registration:", error);
       alert("Failed to register. Please try again.");
@@ -49,7 +57,7 @@ const Register = () => {
   return (
     <div className="container mt-5">
       <div className="col-md-6 offset-md-3">
-        <h2>Registration Page</h2>
+        <h2>Farmer Registration</h2>
         <form onSubmit={handleSignUp}>
           <div className="form-group">
             <label htmlFor="name">Name:</label>
@@ -104,6 +112,13 @@ const Register = () => {
             Sign Up
           </button>
         </form>
+
+        {message && (
+          <div className="alert alert-success mt-3" role="alert">
+            {message}
+          </div>
+        )}
+
         <p className="mt-3">
           Already have an account? <NavLink to="/login">Login here</NavLink>
         </p>

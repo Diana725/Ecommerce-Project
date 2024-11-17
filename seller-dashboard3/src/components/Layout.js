@@ -8,7 +8,12 @@ const Layout = ({ children }) => {
   const location = useLocation();
 
   // Define routes where navbar and footer should not be shown
-  const hideNavAndFooterRoutes = ["/login", "/register", "/"];
+  const hideNavAndFooterRoutes = [
+    "/login",
+    "/register",
+    "/",
+    "/password/reset-form",
+  ];
   const shouldHideNavAndFooter = hideNavAndFooterRoutes.includes(
     location.pathname
   );

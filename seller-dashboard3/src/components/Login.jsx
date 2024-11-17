@@ -3,16 +3,47 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Login = () => {
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/farmer/password/reset-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email }), // Send the email only
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Failed to send reset link.");
+        return;
+      }
+
+      const result = await response.json();
+      setMessage("A password reset link has been sent to your email address.");
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error sending reset link", error);
+      setErrorMessage("Failed to send reset link. Please try again.");
+    }
+  };
   // Function to handle the login process
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    let item = { name, password };
+    let item = { email, password };
 
     try {
       // Call the Laravel API to login the user
@@ -29,11 +60,28 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error during login:", errorData);
-        setErrorMessage(errorData.message || "Failed to login.");
+
+        // Check if the error is related to email verification
+        if (errorData.message === "Email not verified") {
+          setErrorMessage(
+            "Your email is not verified. Please check your inbox."
+          );
+        } else {
+          setErrorMessage(errorData.message || "Failed to login.");
+        }
         return;
       }
 
       let result = await response.json();
+
+      // Check if the email is verified
+      if (!result.user.is_verified) {
+        setErrorMessage(
+          "Your email is not verified. Please check your inbox for the verification link."
+        );
+        return;
+      }
+
       // Clear the error message if login is successful
       setErrorMessage("");
 
@@ -41,7 +89,7 @@ const Login = () => {
       localStorage.setItem("user-info", JSON.stringify(result.user));
       localStorage.setItem("token", result.token);
 
-      // Redirect to the home page after successful login
+      // Redirect to the products page after successful login
       navigate("/products");
     } catch (error) {
       console.error("Error during login:", error);
@@ -82,16 +130,21 @@ const Login = () => {
             {errorMessage}
           </div>
         )}
+        {message && (
+          <div className="alert alert-success" role="alert">
+            {message}
+          </div>
+        )}
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="name">Name:</label>
+            <label htmlFor="name">Email:</label>
             <input
               type="text"
               className="form-control"
               id="name"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -111,6 +164,24 @@ const Login = () => {
             Login
           </button>
         </form>
+        <div className="mt-3">
+          <p>
+            Don't have an account?{" "}
+            <a href="/register" className="btn-link">
+              Register here
+            </a>
+          </p>
+          <p>
+            Forgot your password?{" "}
+            <a
+              href="#"
+              className="btn-link"
+              onClick={handleForgotPassword} // Trigger the forgot password function
+            >
+              Click here
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

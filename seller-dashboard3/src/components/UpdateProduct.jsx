@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const UpdateProduct = () => {
   const [name, setName] = useState("");
@@ -68,19 +69,28 @@ const UpdateProduct = () => {
     updateProduct();
   };
 
+  // Function to navigate back to the product listing page
+  const handleBack = () => {
+    navigate("/products");
+  };
+
   return (
-    <div>
+    <div className="container">
       <h1>Update Product</h1>
       {message && <div className="alert alert-danger">{message}</div>}
       <form onSubmit={handleUpdate}>
         <div className="col-sm-6 offset-sm-3">
           <label>Name:</label>
-          <input
-            type="text"
-            className="form-control"
+          <select
             value={name}
             onChange={(e) => setName(e.target.value)}
-          />
+            required
+          >
+            <option value="Traditional">Traditional Maize</option>
+            <option value="White">White Maize</option>
+            <option value="Yellow">Yellow Maize</option>
+            <option value="URI">URI Maize</option>
+          </select>
         </div>
         <br />
         <div className="col-sm-6 offset-sm-3">
@@ -110,11 +120,24 @@ const UpdateProduct = () => {
             className="form-control"
             onChange={(e) => setFile(e.target.files[0])}
           />
+          <br />
+          <div className="row">
+            <div className="col-sm-3">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleBack}
+              >
+                Back to Products
+              </button>
+            </div>
+            <div className="col-sm-3 offset-sm-6 text-right">
+              <button type="submit" className="btn btn-primary">
+                Update Product
+              </button>
+            </div>
+          </div>
         </div>
-        <br />
-        <button type="submit" className="btn btn-primary offset-sm-3">
-          Update Product
-        </button>
       </form>
     </div>
   );

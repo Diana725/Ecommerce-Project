@@ -22,6 +22,7 @@ const Home = () => {
           <li>Maize Seed Variety</li>
           <li>Price</li>
           <li>Quantity</li>
+          <li>Product Description</li>
           <li>Image</li>
         </ul>
         <p>
