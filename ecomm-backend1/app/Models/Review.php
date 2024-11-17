@@ -17,10 +17,12 @@ class Review extends Model
         return $this->belongsTo(OrderPayment::class);
     }
 
-    public function buyer()
-    {
-        return $this->belongsTo(Buyer::class);
-    }
+   
+public function buyer()
+{
+    return $this->belongsTo(Buyer::class, 'buyer_id');
+}
+
 
     public function product()
 {

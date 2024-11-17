@@ -24,6 +24,7 @@ class OrderPayment extends Model
         'delivery_service',  // New field
         'delivery_zone_id',
         'delivery_location_id',
+        'total_price',
     ];
 
     public function buyer()

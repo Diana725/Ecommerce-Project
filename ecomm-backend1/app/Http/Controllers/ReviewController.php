@@ -27,15 +27,22 @@ class ReviewController extends Controller
         'rating' => $request->rating,
     ]);
 
+    $orderPayment->update(['review_submitted' => true]);
+
     return response()->json($review, 201);
 }
 
    
 
-    public function getByProductId($productId)
+public function getByProductId($productId)
 {
-    $reviews = Review::where('product_id', $productId)->get();
+    // Eager load the buyer relationship to include buyer's name
+    $reviews = Review::where('product_id', $productId)
+        ->with('buyer:id,name') // Assuming 'id' and 'name' are the fields in the 'buyers' table
+        ->get();
+
     return response()->json($reviews);
 }
+
 
 }

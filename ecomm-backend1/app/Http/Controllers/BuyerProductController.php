@@ -11,7 +11,7 @@ class BuyerProductController extends Controller
     public function index()
     {
         // Fetch products from the Product table
-        $products = Product::select('id','name', 'price', 'quantity', 'file_path', 'payment_method')->get();
+        $products = Product::select('id','name', 'price', 'quantity', 'file_path', 'payment_method','stock_status','description')->get();
 
         // Return products as JSON response
         return response()->json($products);

@@ -15,6 +15,8 @@ class Buyer extends Authenticatable
         'name',
         'email',
         'password',
+        'is_verified', // Add this if you want to allow mass assignment
+        'email_verification_token', // Add this if you want to allow mass assignment
     ];
 
     protected $hidden = [

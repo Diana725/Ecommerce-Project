@@ -11,10 +11,14 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price', 'quantity', 'file_path', 'payment_method'];
+    protected $fillable = ['name', 'price', 'quantity', 'file_path', 'payment_method','description'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id', 'id');
     }
 }

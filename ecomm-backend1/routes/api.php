@@ -32,6 +32,21 @@ Route::post('/farmer/delivery', [DeliveryController::class, 'createDelivery']);
 
 Route::get('/buyers/farmers/{farmerId}/delivery-zones', [DeliveryZoneController::class, 'getFarmerDeliveryZones']);
     Route::get('/buyers/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'getDeliveryLocationsByZone']);
+    // Route to fetch reviews for a product
+Route::get('/product/{id}/reviews', [ProductController::class, 'getProductReviews']);
+Route::put('/product/{id}/out-of-stock', [ProductController::class, 'markOutOfStock']);
+
+//email verification routes
+Route::get('/buyer/verify-email/{token}', [BuyerController::class, 'verifyEmail']);
+Route::get('/farmer/verify-email/{token}', [UserController::class, 'verifyEmail']);
+
+// Password Reset Routes for Buyers
+Route::post('/buyer/password/reset-request', [BuyerController::class, 'sendPasswordResetLink']);
+Route::post('/buyer/password/reset', [BuyerController::class, 'resetPassword']);
+
+//Password Reset Routes for Farmers
+Route::post('/farmer/password/reset-request', [UserController::class, 'sendPasswordResetLinkFarmer']);
+Route::post('/farmer/password/reset', [UserController::class, 'resetPasswordFarmer']);
 
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
@@ -72,6 +87,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Protected routes for authenticated buyers
 Route::middleware(['auth:buyer'])->group(function () {
+
+    
+    
+    //cart routes 
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::delete('/cart/remove/{productId}', [CartController::class, 'removeFromCart']);

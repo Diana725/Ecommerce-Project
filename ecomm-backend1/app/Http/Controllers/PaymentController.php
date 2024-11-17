@@ -10,36 +10,41 @@ class PaymentController extends Controller
 {
     // Buyer-side: Submit payment proof
     // Buyer-side: Submit payment proof with delivery info
-public function submitPayment(Request $request)
-{
-    $request->validate([
-        'farmer_id' => 'required|exists:users,id',
-        'product_id' => 'required|exists:products,id', // Validate product_id
-        'payment_reference' => 'required|string',
-        'proof_of_payment' => 'nullable|string',
-        'delivery_zone_id' => 'required|exists:farmer_delivery_zones,id', // Validate delivery zone
-        'delivery_location_id' => 'required|exists:delivery_locations,id', // Validate delivery location
-    ]);
-
-    $buyerId = Auth::guard('buyer')->id();
-
-    try {
-        $payment = OrderPayment::create([
-            'buyer_id' => $buyerId,
-            'farmer_id' => $request->farmer_id,
-            'product_id' => $request->product_id,
-            'payment_reference' => $request->payment_reference,
-            'proof_of_payment' => $request->proof_of_payment,
-            'status' => 'Payment Pending',
-            'delivery_zone_id' => $request->delivery_zone_id, // Save delivery zone ID
-            'delivery_location_id' => $request->delivery_location_id, // Save delivery location ID
+    public function submitPayment(Request $request)
+    {
+        $request->validate([
+            'farmer_id' => 'required|exists:users,id',
+            'product_id' => 'required|exists:products,id', // Validate product_id
+            'payment_reference' => 'required|string',
+            'proof_of_payment' => 'nullable|string|size:10', // Ensure proof of payment is exactly 10 characters
+            'delivery_zone_id' => 'required|exists:farmer_delivery_zones,id', // Validate delivery zone
+            'total_price' => 'required|numeric', 
+            'delivery_location_id' => 'required|exists:delivery_locations,id', // Validate delivery location
+        ], [
+            'proof_of_payment.size' => 'The proof of payment must be exactly 10 characters.', // Custom error message
         ]);
-
-        return response()->json(['message' => 'Payment submitted successfully', 'payment_id' => $payment->id]);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Failed to submit payment', 'error' => $e->getMessage()], 500);
+    
+        $buyerId = Auth::guard('buyer')->id();
+    
+        try {
+            $payment = OrderPayment::create([
+                'buyer_id' => $buyerId,
+                'farmer_id' => $request->farmer_id,
+                'product_id' => $request->product_id,
+                'payment_reference' => $request->payment_reference,
+                'proof_of_payment' => $request->proof_of_payment,
+                'status' => 'Payment Pending',
+                'delivery_zone_id' => $request->delivery_zone_id, // Save delivery zone ID
+                'delivery_location_id' => $request->delivery_location_id, // Save delivery location ID
+                'total_price' => $request->total_price, 
+            ]);
+    
+            return response()->json(['message' => 'Payment submitted successfully', 'payment_id' => $payment->id]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to submit payment', 'error' => $e->getMessage()], 500);
+        }
     }
-}
+    
 
 
     // Buyer-side: Fetch payment history
@@ -108,6 +113,7 @@ public function getAllPayments()
     
         return response()->json([
             'status' => $payment->status,
+            'total_price' => $payment->total_price,
             'proof_of_payment' => $payment->proof_of_payment,
             'product_name' => $payment->product->name,
             'farmer_name' => $payment->farmer->name,
@@ -178,14 +184,13 @@ public function submitReview(Request $request)
 {
     $request->validate([
         'order_payment_id' => 'required|exists:order_payments,id',
-        // You can include any necessary validation for the review submission here
     ]);
 
     // Get the authenticated buyer
     $buyerId = Auth::guard('buyer')->id();
 
-    // Find the corresponding payment
-    $payment = OrderPayment::where('id', $request->payment_id)
+    // Find the corresponding payment (ensure consistency with validated field name)
+    $payment = OrderPayment::where('id', $request->order_payment_id)
         ->where('buyer_id', $buyerId) // Ensure the buyer owns this payment
         ->first();
 
@@ -197,7 +202,12 @@ public function submitReview(Request $request)
     $payment->review_submitted = true; // Mark it as submitted
     $payment->save();
 
-    return response()->json(['message' => 'Review submitted successfully.', 'payment' => $payment]);
+    // Debugging: Check if the field is updated correctly
+    return response()->json([
+        'message' => 'Review submitted successfully.',
+        'review_submitted' => $payment->review_submitted,  // Return the updated field
+        'payment' => $payment
+    ]);
 }
 
 }

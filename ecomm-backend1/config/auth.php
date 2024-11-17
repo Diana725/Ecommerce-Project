@@ -114,14 +114,22 @@ return [
     |
     */
 
-    'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+'passwords' => [
+    'users' => [
+        'provider' => 'users',
+        'table' => 'password_reset_tokens',
+        'expire' => 60,
+        'throttle' => 60,
     ],
+
+    'buyers' => [  // Add this section for buyers
+        'provider' => 'buyers', // Matches the buyers provider
+        'table' => 'password_reset_tokens', // Use the same table for password resets
+        'expire' => 60, // Expiry time for password reset token (in minutes)
+        'throttle' => 60, // How often the reset can be requested
+    ],
+],
+
 
     /*
     |--------------------------------------------------------------------------

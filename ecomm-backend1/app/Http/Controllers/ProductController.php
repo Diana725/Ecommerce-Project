@@ -34,7 +34,9 @@ class ProductController extends Controller
         $product->quantity = $req->input('quantity');
         $product->payment_method = $req->input('payment_method'); // Set payment method
         $product->file_path = $req->file('file')->store('products');
+        $product->description = $req->input('description'); 
         $product->user_id = $user->id; // Assign the authenticated user ID
+        
         $product->save();
     
         return response()->json([
@@ -44,12 +46,16 @@ class ProductController extends Controller
     }    
 
     public function list()
-    {
-        // Retrieve the currently authenticated user
-        $user = Auth::guard('sanctum')->user();
-        
-        return Product::where('user_id', $user->id)->get();
-    }
+{
+    // Retrieve the currently authenticated user
+    $user = Auth::guard('sanctum')->user();
+    
+    // Fetch products for the authenticated user along with their reviews
+    return Product::where('user_id', $user->id)
+                  ->with('reviews.buyer') // Eager-load reviews and optionally buyer info
+                  ->get();
+}
+
 
     public function delete($id)
     {
@@ -134,4 +140,33 @@ class ProductController extends Controller
             'product' => $product,
         ], 200);
     }
+    public function getProductReviews($id)
+{
+    $product = Product::with('reviews.buyer')->find($id);
+    if (!$product) {
+        return response()->json(['error' => 'Product not found'], 404);
+    }
+    return response()->json($product->reviews);
+}
+
+public function markOutOfStock($id)
+{
+    // Find the product by its ID
+    $product = Product::find($id);
+
+    // Check if the product exists
+    if ($product) {
+        // Update the stock status to 'Out of Stock'
+        $product->stock_status = 'Out of Stock';
+        $product->save(); // Save the changes to the database
+
+        // Return a success response
+        return response()->json(['message' => 'Product marked as out of stock'], 200);
+    }
+
+    // If the product doesn't exist, return a 404 error
+    return response()->json(['error' => 'Product not found'], 404);
+}
+
+
 }
