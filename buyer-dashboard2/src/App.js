@@ -23,12 +23,17 @@ import ProtectedRoute from "./components/ProtectedRoute.js";
 import PaymentDetails from "./components/PaymentDetails.jsx";
 import PaymentHistory from "./components/PaymentHistory.jsx";
 import DeliveryTrackingBuyer from "./components/DeliveryTrackingBuyer.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
 
 const App = () => {
   const location = useLocation();
 
   // Define routes where navbar and footer should not be shown
-  const hideNavAndFooterRoutes = ["/login", "/register"];
+  const hideNavAndFooterRoutes = [
+    "/login",
+    "/register",
+    "/password/reset-form",
+  ];
 
   const shouldHideNavAndFooter = hideNavAndFooterRoutes.includes(
     location.pathname
@@ -58,6 +63,7 @@ const App = () => {
         />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/password/reset-form" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/checkout"

@@ -68,6 +68,12 @@ const Products = () => {
                   ksh{product.price}
                 </p>
                 <p className="card-text lead fw-bold">{product.quantity} Kgs</p>
+                {product.stock_status === "Out of Stock" && (
+                  <p className="card-text" style={{ color: "red" }}>
+                    {product.stock_status}
+                  </p>
+                )}
+
                 <NavLink
                   to={`/products/${product.id}`}
                   className="btn btn-outline-dark"

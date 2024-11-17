@@ -10,6 +10,7 @@ const PaymentHistory = () => {
   const [selectedPaymentId, setSelectedPaymentId] = useState(null);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [markedAsDelivered, setMarkedAsDelivered] = useState([]);
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -38,7 +39,8 @@ const PaymentHistory = () => {
     };
 
     fetchPayments();
-    const intervalId = setInterval(fetchPayments, 300000);
+
+    const intervalId = setInterval(fetchPayments, 50000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -66,6 +68,7 @@ const PaymentHistory = () => {
             : payment
         )
       );
+      setMarkedAsDelivered((prev) => [...prev, paymentId]);
     } catch (err) {
       setError(err.message);
     }
@@ -101,11 +104,11 @@ const PaymentHistory = () => {
         throw new Error("Failed to submit review");
       }
 
-      // Update the payments state to reflect that the review has been submitted
+      // Immediately update the payments state to reflect the submitted review
       setPayments((prevPayments) =>
         prevPayments.map((payment) =>
           payment.id === selectedPaymentId
-            ? { ...payment, review_submitted: true }
+            ? { ...payment, review_submitted: 1 }
             : payment
         )
       );
@@ -135,6 +138,7 @@ const PaymentHistory = () => {
           <thead>
             <tr>
               <th>Status</th>
+              <th>Amount Paid</th>
               <th>Proof of Payment</th>
               <th>Product Name</th>
               <th>Delivery Location</th>
@@ -149,6 +153,7 @@ const PaymentHistory = () => {
             {payments.map((payment) => (
               <tr key={payment.id}>
                 <td>{payment.status}</td>
+                <td>{payment.total_price}</td>
                 <td>{payment.proof_of_payment || "Not provided"}</td>
                 <td>{payment.product.name}</td>
                 <td>
@@ -160,17 +165,24 @@ const PaymentHistory = () => {
                 <td>{payment.tracking_number || "N/A"}</td>
                 <td>{payment.delivery_service || "N/A"}</td>
                 <td>
-                  <Button
-                    variant="success"
-                    onClick={() => markAsDelivered(payment.id)}
-                    disabled={payment.delivery_status !== "Shipped"}
-                  >
-                    Mark as Delivered
-                  </Button>
+                  {markedAsDelivered.includes(payment.id) ? (
+                    <Button variant="success" disabled>
+                      Marked As Delivered
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="success"
+                      onClick={() => markAsDelivered(payment.id)}
+                      disabled={payment.delivery_status !== "Shipped"}
+                    >
+                      Mark as Delivered
+                    </Button>
+                  )}
                 </td>
+                {/* Wangari19!! */}
                 <td>
                   {payment.delivery_status === "Delivered" &&
-                    !payment.review_submitted && (
+                    payment.review_submitted === 0 && (
                       <Button
                         variant="primary"
                         onClick={() => handleOpenReviewModal(payment.id)}
@@ -179,7 +191,7 @@ const PaymentHistory = () => {
                         Add Review
                       </Button>
                     )}
-                  {payment.review_submitted && (
+                  {payment.review_submitted === 1 && (
                     <Button variant="secondary" disabled className="ml-2">
                       Review Submitted
                     </Button>
@@ -190,6 +202,7 @@ const PaymentHistory = () => {
           </tbody>
         </Table>
       )}
+      <hr />
 
       <Modal show={showReviewModal} onHide={handleCloseReviewModal}>
         <Modal.Header closeButton>

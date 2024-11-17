@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Alert } from "react-bootstrap";
 import { removeFromCart } from "../redux/action";
+import { Modal } from "react-bootstrap";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -17,6 +18,10 @@ const Checkout = () => {
   const [locations, setLocations] = useState({});
   const [selectedZone, setSelectedZone] = useState({});
   const [selectedLocation, setSelectedLocation] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [paymentId, setPaymentId] = useState(null);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -44,8 +49,67 @@ const Checkout = () => {
     fetchProductDetails();
   }, [cartItems]);
 
+  const validateFields = (item) => {
+    let errors = {};
+
+    const paymentProof = paymentProofs[item.product.id];
+
+    if (!paymentProof) {
+      errors.paymentProof = "Proof of payment is required";
+    } else if (paymentProof.length !== 10) {
+      errors.paymentProof = "Proof of payment must be exactly 10 characters.";
+    }
+
+    if (!deliveryFees[item.product.id]) {
+      errors.deliveryFee = "Delivery fee is required";
+    }
+
+    if (!selectedZone[item.product.id]) {
+      errors.deliveryZone = "Delivery zone is required";
+    }
+
+    if (!selectedLocation[item.product.id]) {
+      errors.deliveryLocation = "Delivery location is required";
+    }
+
+    return errors;
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    if (paymentId) {
+      navigate(`/payment-details/${paymentId}`); // Redirect to payment details page using stored payment ID
+    }
+  };
+
   const handlePayment = async (item) => {
+    // Calculate the total price
+    const productPrice = parseFloat(item.productDetails.price) || 0;
+    const deliveryFee = Number(deliveryFees[item.product.id]) || 0;
+    const totalPrice = parseFloat(
+      productPrice * item.quantity + deliveryFee
+    ).toFixed(2);
+
+    // Run validation for the current item
+    const errors = validateFields(item);
+
+    // If there are validation errors, set the errors in the state and prevent form submission
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        [item.product.id]: errors,
+      }));
+      return;
+    }
+
+    // Clear validation errors if the fields are valid
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [item.product.id]: null,
+    }));
+
     try {
+      // Proceed with the payment submission
       const response = await fetch("http://localhost:8000/api/buyer/payment", {
         method: "POST",
         headers: {
@@ -56,32 +120,69 @@ const Checkout = () => {
           farmer_id: item.productDetails.user_id,
           product_id: item.product.id,
           payment_reference: "Direct Transfer",
+          payment_method: item.product.payment_method,
           proof_of_payment: paymentProofs[item.product.id] || "",
           delivery_fee: deliveryFees[item.product.id] || 0,
           delivery_zone_id: selectedZone[item.product.id] || null,
           delivery_location_id: selectedLocation[item.product.id] || null,
+          total_price: totalPrice, // Send the totalPrice to the backend
         }),
       });
 
+      // Check if the response is not successful
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to confirm payment");
       }
 
       const result = await response.json();
-      alert(`Payment confirmed for ${item.productDetails.name}!`);
+
+      if (!result.payment_id) {
+        throw new Error("Invalid response: Payment ID is missing");
+      }
+
+      // Set modal message, show modal, and store payment ID on success
+      setModalMessage(`Payment confirmed for ${item.productDetails.name}`);
+      setPaymentId(result.payment_id); // Save the payment ID
+      setShowModal(true);
+
+      // Remove the item from cart after successful payment
       dispatch(removeFromCart(item.product.id));
-      navigate(`/payment-details/${result.payment_id}`);
+
+      // After payment is successful, navigate to PaymentDetails page and pass totalPrice
+      setTimeout(() => {
+        navigate(`/payment-details/${result.payment_id}`, {
+          state: { totalPrice }, // Pass totalPrice via state
+        });
+      }, 2000);
     } catch (err) {
+      // Handle any errors during payment submission
       console.error("Payment Error:", err);
       alert(err.message);
+      setShowModal(true);
     }
   };
 
+  // Modal handler functions
+
+  useEffect(() => {
+    console.log("showModal updated:", showModal);
+  }, [showModal]);
+
   const handleProofChange = (productId, value) => {
+    // Update the payment proof state
     setPaymentProofs((prev) => ({
       ...prev,
       [productId]: value,
+    }));
+
+    // Clear the validation error related to proof of payment once user starts typing
+    setValidationErrors((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        proof: value.length === 10 ? "" : prev[productId]?.proof, // Clear if 10 characters
+      },
     }));
   };
 
@@ -133,7 +234,15 @@ const Checkout = () => {
       ...prev,
       [productId]: zoneId,
     }));
-    fetchLocations(zoneId, productId); // Fetch locations based on selected zone
+
+    // Fetch locations based on the selected zone
+    fetchLocations(zoneId, productId);
+
+    // Clear validation error related only to the zone
+    setValidationErrors((prev) => ({
+      ...prev,
+      [productId]: { ...prev[productId], zone: "" },
+    }));
   };
 
   const handleLocationSelection = (productId, locationId, fee) => {
@@ -141,7 +250,15 @@ const Checkout = () => {
       ...prev,
       [productId]: locationId,
     }));
-    updateDeliveryFee(productId, fee); // Update the delivery fee based on selected location
+
+    // Update the delivery fee based on the selected location
+    updateDeliveryFee(productId, fee);
+
+    // Clear validation error related only to the location
+    setValidationErrors((prev) => ({
+      ...prev,
+      [productId]: { ...prev[productId], location: "" },
+    }));
   };
 
   if (loading) {
@@ -189,11 +306,12 @@ const Checkout = () => {
                     style={{
                       width: "200px",
                       height: "150px",
-                      marginLeft: "400px",
+                      marginLeft: "300px",
                       marginTop: "10px",
                     }}
                   />
                 </div>
+
                 <p>Price: Ksh {item.productDetails.price * item.quantity}</p>
                 <p>Quantity: {item.quantity}</p>
 
@@ -208,6 +326,7 @@ const Checkout = () => {
                     onClick={() =>
                       fetchZones(item.productDetails.user_id, item.product.id)
                     }
+                    isInvalid={!!validationErrors[item.product.id]?.zone}
                   >
                     <option value="">Select a zone</option>
                     {zones[item.product.id]?.map((zone) => (
@@ -216,6 +335,9 @@ const Checkout = () => {
                       </option>
                     ))}
                   </Form.Control>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors[item.product.id]?.zone}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 {/* Delivery Location Dropdown */}
@@ -224,6 +346,7 @@ const Checkout = () => {
                     <Form.Label>Select Delivery Location</Form.Label>
                     <Form.Control
                       as="select"
+                      isInvalid={!!validationErrors[item.product.id]?.location}
                       onChange={(e) =>
                         handleLocationSelection(
                           item.product.id,
@@ -243,9 +366,13 @@ const Checkout = () => {
                         </option>
                       ))}
                     </Form.Control>
+                    <Form.Control.Feedback type="invalid">
+                      {validationErrors[item.product.id]?.location}
+                    </Form.Control.Feedback>
                   </Form.Group>
                 )}
 
+                {/* Delivery Fee */}
                 {deliveryFees[item.product.id] !== undefined && (
                   <p>
                     <strong>Delivery Fee:</strong> Ksh{" "}
@@ -253,6 +380,7 @@ const Checkout = () => {
                   </p>
                 )}
 
+                {/* Total Price */}
                 <p>
                   <strong>Total Price:</strong> Ksh{" "}
                   {(() => {
@@ -265,32 +393,73 @@ const Checkout = () => {
                     ).toFixed(2);
                   })()}
                 </p>
-
                 <p>
-                  <strong>Payment Method:</strong>{" "}
-                  {item.productDetails.payment_method}
+                  <strong>Payment Method:</strong> {item.product.payment_method}
                 </p>
-
+                {/* Payment Proof Input */}
                 <Form.Group controlId={`proofOfPayment-${item.product.id}`}>
                   <Form.Label>Upload Payment Code</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Enter payment proof"
+                    value={paymentProofs[item.product.id] || ""} // Set current input value
+                    isInvalid={!!validationErrors[item.product.id]?.proof} // Show error if exists
                     onChange={(e) =>
                       handleProofChange(item.product.id, e.target.value)
                     }
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors[item.product.id]?.proof}
+                  </Form.Control.Feedback>
                 </Form.Group>
-                <Button variant="primary" onClick={() => handlePayment(item)}>
+
+                {/* Confirm Payment Button */}
+                <Button
+                  variant="primary"
+                  onClick={() => handlePayment(item)}
+                  className="mt-3"
+                >
                   Confirm Payment
                 </Button>
+
+                {/* Validation Error Message */}
+                {validationErrors[item.product.id] &&
+                  Object.keys(validationErrors[item.product.id]).length > 0 && (
+                    <p className="text-danger mt-2">
+                      {Object.values(validationErrors[item.product.id]).map(
+                        (error, index) => (
+                          <span key={index}>
+                            {error}
+                            <br />
+                          </span>
+                        )
+                      )}
+                    </p>
+                  )}
               </li>
             ))}
           </ul>
+          <Button
+            variant="dark"
+            className="mt-3 mb-5 w-100"
+            onClick={() => navigate("/cart")} // Use navigate here
+          >
+            Back to Cart
+          </Button>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Payment Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{modalMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
-
 export default Checkout;

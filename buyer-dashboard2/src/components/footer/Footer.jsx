@@ -10,7 +10,7 @@ const Footer = () => {
           MaizeAI
         </p>
       </div>
-      <ul className="footer-links">
+      <ul className="footer-links fs-6">
         <li>Company</li>
         <li>Products</li>
         <li>Offices</li>
@@ -29,8 +29,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer-copyright">
-        <hr />
-        <p>Copyright @ 2024 - All Right Reserved</p>
+        <p className="fs-6">Copyright @ 2024 - All Right Reserved</p>
       </div>
     </div>
   );

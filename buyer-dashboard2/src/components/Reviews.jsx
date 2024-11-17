@@ -6,6 +6,7 @@ const Reviews = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [averageRating, setAverageRating] = useState(0); // State to store average rating
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -26,6 +27,14 @@ const Reviews = ({ productId }) => {
 
         const data = await response.json();
         setReviews(data);
+
+        // Calculate average rating
+        const totalRating = data.reduce(
+          (acc, review) => acc + review.rating,
+          0
+        );
+        const avgRating = data.length ? totalRating / data.length : 0;
+        setAverageRating(avgRating.toFixed(1)); // Round to one decimal
       } catch (err) {
         setError(err.message);
       } finally {
@@ -50,7 +59,24 @@ const Reviews = ({ productId }) => {
 
   return (
     <div className="reviews-section">
-      <h4>Customer Reviews</h4>
+      <h4>
+        Customer Reviews:
+        {averageRating > 0 && (
+          <>
+            {" "}
+            <span className="average-rating">
+              ({averageRating} out of 5 stars)
+            </span>
+            <StarRatings
+              rating={parseFloat(averageRating)}
+              starRatedColor="gold"
+              numberOfStars={5}
+              starDimension="20px"
+              starSpacing="2px"
+            />
+          </>
+        )}
+      </h4>
       <ListGroup>
         {reviews.map((review) => (
           <ListGroup.Item key={review.id}>
@@ -67,7 +93,8 @@ const Reviews = ({ productId }) => {
               </div>
               <p>{review.review}</p>
               <small>
-                <strong>Reviewed by:</strong> {review.buyer_name} on{" "}
+                <strong>Reviewed by:</strong>{" "}
+                {review.buyer ? review.buyer.name : "Anonymous"} on{" "}
                 {new Date(review.created_at).toLocaleDateString()}
               </small>
             </div>

@@ -5,12 +5,15 @@ import Skeleton from "react-loading-skeleton";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import ChatBox from "./ChatBox"; // Import the ChatBox component
 import Reviews from "./Reviews";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button"; // Bootstrap components for the modal
 
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -18,7 +21,15 @@ const Product = () => {
     return !!localStorage.getItem("token");
   };
 
+  const handleCloseModal = () => setShowModal(false); // Function to close the modal
+  const handleShowModal = () => setShowModal(true); // Function to show the modal
+
   const addProduct = (product) => {
+    if (product.stock_status === "Out of Stock") {
+      handleShowModal(); // Show the modal if the product is out of stock
+      return;
+    }
+
     if (isAuthenticated()) {
       dispatch(addToCart(product));
     } else {
@@ -85,13 +96,19 @@ const Product = () => {
             src={`http://localhost:8000/${product.file_path}`} // Dynamic image source
             alt={product.name}
             height="400px"
-            width="400px"
+            width="500px"
           />
         </div>
         <div className="col-md-6">
           <h1 className="display-5">{product.name}</h1>
           <h3 className="display-6 fw-bold my-4">ksh {product.price}</h3>
           <p className="lead">{product.quantity} Kgs</p>
+          <p className="lead">{product.description}</p>
+          {product.stock_status === "Out of Stock" && (
+            <p className="card-text" style={{ color: "red" }}>
+              {product.stock_status}
+            </p>
+          )}
           <button
             className="btn btn-outline-dark px-4 py-2"
             onClick={() => addProduct(product)}
@@ -121,9 +138,29 @@ const Product = () => {
           )}
         </div>
       </div>
+
+      <div className="container">
+        <hr />
+        {/* Conditionally render the Reviews component after product data is available */}
+        {product && <Reviews productId={product.id} />}
+      </div>
+      <br />
       <hr />
-      {/* Conditionally render the Reviews component after product data is available */}
-      {product && <Reviews productId={product.id} />}
+      {/* Modal to show out-of-stock warning */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Product Out of Stock</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          This product is currently out of stock and cannot be added to the
+          cart.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

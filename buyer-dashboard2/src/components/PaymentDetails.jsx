@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // For accessing payment_id from URL
+import { useParams, useNavigate, useLocation } from "react-router-dom"; // For accessing payment_id from URL
 import { Button } from "react-bootstrap";
 
 const PaymentDetails = () => {
@@ -8,6 +8,8 @@ const PaymentDetails = () => {
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // const location = useLocation();
+  // const totalPrice = location.state?.totalPrice;
 
   // Fetch payment details from the backend
   useEffect(() => {
@@ -52,9 +54,13 @@ const PaymentDetails = () => {
 
           {paymentDetails ? (
             <div>
-              <h4>Payment Status: {paymentDetails.status}</h4>
+              <h4>
+                Payment Status: {paymentDetails.status} Confirmation From Farmer
+              </h4>
+              <p>Total Price Paid: Ksh {paymentDetails.total_price}</p>
               <p>Payment Code: {paymentDetails.proof_of_payment}</p>
               <p>Product Name: {paymentDetails.product_name}</p>
+
               {/* <p>Farmer's Name: {paymentDetails.farmer_name}</p> */}
               <p>Delivery Zone: {paymentDetails.delivery_zone_name}</p>
               <p>Delivery Location: {paymentDetails.delivery_location_name}</p>
@@ -63,6 +69,18 @@ const PaymentDetails = () => {
           ) : (
             <p>No payment details found.</p>
           )}
+          {/* Track Delivery Button */}
+          <Button
+            variant="success"
+            className="mt-2 w-100"
+            onClick={() => {
+              // Store totalPrice in localStorage before navigating
+              // localStorage.setItem("totalPrice", totalPrice);
+              navigate("/payment-history");
+            }}
+          >
+            Track Payment Confirmation and Delivery Details
+          </Button>
 
           {/* Back to Checkout */}
           <Button
@@ -71,15 +89,6 @@ const PaymentDetails = () => {
             onClick={() => navigate("/checkout")} // Use navigate here
           >
             Back to Checkout
-          </Button>
-
-          {/* Track Delivery Button */}
-          <Button
-            variant="success"
-            className="mt-2 w-100"
-            onClick={() => navigate("/payment-history")} // Redirect to delivery tracking page
-          >
-            Track Delivery
           </Button>
         </div>
       </div>
