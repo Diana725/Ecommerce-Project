@@ -48,6 +48,9 @@ Route::post('/buyer/password/reset', [BuyerController::class, 'resetPassword']);
 Route::post('/farmer/password/reset-request', [UserController::class, 'sendPasswordResetLinkFarmer']);
 Route::post('/farmer/password/reset', [UserController::class, 'resetPasswordFarmer']);
 
+Route::get('buyer-search/{key}', [BuyerProductController::class, 'buyerSearch']);
+
+
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('addProduct', [ProductController::class, 'addProduct']);
@@ -77,6 +80,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'storeLocation']);;
     Route::get('/delivery-zones/{zoneId}/locations', [DeliveryZoneController::class, 'showLocations']);
     Route::delete('/delivery-zones/{zoneId}/locations/{locationId}', [DeliveryZoneController::class, 'removeLocation']);
+    Route::delete('delivery-zones/{zoneId}', [DeliveryZoneController::class, 'removeZone']);
+
 
     //new route for delivery
     Route::put('/order-payments/{id}/ship', [PaymentController::class, 'updateDeliveryStatusToShipped']);

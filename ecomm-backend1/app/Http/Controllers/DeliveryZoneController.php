@@ -66,15 +66,18 @@ class DeliveryZoneController extends Controller
     public function removeLocation($zoneId, $locationId)
 {
     $zone = FarmerDeliveryZone::find($zoneId);
-    
     if (!$zone) {
         return response()->json(['message' => 'Zone not found'], 404);
     }
 
     $location = $zone->deliveryLocations()->find($locationId);
-    
     if (!$location) {
         return response()->json(['message' => 'Location not found'], 404);
+    }
+
+    // Check if there are any order payments linked to this location
+    if ($location->orderPayments()->count() > 0) {
+        return response()->json(['message' => 'Cannot delete this location because it is referenced in the Payment Details Table, add your preferred Delivery Zone with your updated Location Name'], 400);
     }
 
     // Delete the location
@@ -82,6 +85,7 @@ class DeliveryZoneController extends Controller
 
     return response()->json(['message' => 'Location deleted successfully'], 200);
 }
+
 public function getDeliveryZones($farmer_id)
 {
     $deliveryZones = DeliveryZone::where('farmer_id', $farmer_id)->get();
@@ -114,5 +118,22 @@ public function getDeliveryLocationsByZone($zoneId)
 
     return response()->json($deliveryZone->deliveryLocations, 200);
 }
+public function removeZone($zoneId)
+{
+    // Find the zone by ID and make sure it belongs to the authenticated farmer
+    $zone = FarmerDeliveryZone::where('id', $zoneId)
+        ->where('farmer_id', Auth::id()) // Ensure the zone belongs to the current farmer
+        ->first();
+
+    if (!$zone) {
+        return response()->json(['message' => 'Delivery zone not found'], 404);
+    }
+
+    // Delete the delivery zone along with its associated locations
+    $zone->delete();
+
+    return response()->json(['message' => 'Delivery zone and its locations deleted successfully'], 200);
+}
+
 
 }

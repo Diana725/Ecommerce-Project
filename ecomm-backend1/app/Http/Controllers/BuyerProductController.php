@@ -28,4 +28,24 @@ class BuyerProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
     }
+    public function buyerSearch($key) 
+{
+    // Split the search key into individual words
+    $keywords = explode(' ', $key);
+
+    // Start the query without filtering by id, search by keywords in product names
+    $query = Product::query();
+
+    // Use 'orWhere' to match any of the words in the product name
+    $query->where(function($q) use ($keywords) {
+        foreach ($keywords as $word) {
+            $q->orWhere('name', 'LIKE', '%' . $word . '%');
+        }
+    });
+
+    // Execute the query and return the products
+    return response()->json($query->get());
+}
+
+
 }

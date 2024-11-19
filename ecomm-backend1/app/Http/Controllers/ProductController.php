@@ -85,12 +85,27 @@ class ProductController extends Controller
     }
 
     public function search($key)
-    {
-        // Retrieve the currently authenticated user
-        $user = Auth::guard('sanctum')->user();
+{
+    // Retrieve the currently authenticated user
+    $user = Auth::guard('sanctum')->user();
+    
+    // Split the search key into individual words
+    $keywords = explode(' ', $key);
 
-        return Product::where("name", "Like", "%$key%")->where('user_id', $user->id)->get();
-    }
+    // Start the query
+    $query = Product::where('user_id', $user->id);
+    
+    // Use 'orWhere' to match any of the words
+    $query->where(function($q) use ($keywords) {
+        foreach ($keywords as $word) {
+            $q->orWhere('name', 'LIKE', '%' . $word . '%');
+        }
+    });
+
+    // Execute the query
+    return $query->get();
+}
+
 
     public function update(Request $request, $id)
     {
