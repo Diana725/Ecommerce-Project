@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, NavLink, useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import "./ProductList.css";
 
 const SearchResults = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [productAverageRating, setProductAverageRating] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [productToMarkOutOfStock, setProductToMarkOutOfStock] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate(); // Hook for navigation
 
@@ -19,7 +28,7 @@ const SearchResults = () => {
           `http://localhost:8000/api/search/${encodeURIComponent(query)}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Use the token obtained from login
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           }
@@ -39,23 +48,77 @@ const SearchResults = () => {
     fetchSearchResults();
   }, [query]);
 
-  // Delete product
-  const deleteOperation = async (id) => {
+  // Fetch reviews for a product
+  async function fetchReviews(productId) {
     const token = localStorage.getItem("token");
-    try {
-      let result = await fetch(`http://localhost:8000/api/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      result = await result.json();
-      console.warn(result);
 
-      // Remove deleted product from state
-      setResults(results.filter((product) => product.id !== id));
+    try {
+      const result = await fetch(
+        `http://localhost:8000/api/product/${productId}/reviews`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const reviewsData = await result.json();
+      setReviews(reviewsData);
+      calculateProductRating(reviewsData);
+      setShowModal(true); // Open modal to show reviews
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error("Error fetching reviews:", error);
+    }
+  }
+
+  // Calculate average rating for the current product
+  function calculateProductRating(reviews) {
+    let totalRating = 0;
+
+    reviews.forEach((review) => {
+      totalRating += review.rating;
+    });
+
+    const average =
+      reviews.length > 0 ? (totalRating / reviews.length).toFixed(2) : 0;
+    setProductAverageRating(average);
+  }
+
+  // Mark product as out of stock
+  async function markOutOfStock(id) {
+    const token = localStorage.getItem("token");
+
+    try {
+      const result = await fetch(
+        `http://localhost:8000/api/product/${id}/out-of-stock`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (result.ok) {
+        setProductToMarkOutOfStock(null); // Reset after marking
+        setShowConfirmModal(false); // Close modal after marking out of stock
+      }
+    } catch (error) {
+      console.error("Error marking product as out of stock:", error);
+    }
+  }
+
+  // Open confirmation modal for marking out of stock
+  const handleOutOfStockClick = (product) => {
+    setProductToMarkOutOfStock(product);
+    setShowConfirmModal(true); // Open the confirmation modal
+  };
+
+  const confirmMarkOutOfStock = () => {
+    if (productToMarkOutOfStock) {
+      markOutOfStock(productToMarkOutOfStock.id);
     }
   };
 
@@ -89,18 +152,31 @@ const SearchResults = () => {
 
                   {/* Update Button */}
                   <button
-                    className="btn btn-primary me-2"
+                    className="update mb-2"
                     onClick={() => navigate(`/update/${product.id}`)}
                   >
                     Update
                   </button>
-
-                  {/* Delete Button */}
+                  <br />
+                  {/* Show Reviews Button */}
                   <button
-                    className="btn btn-danger"
-                    onClick={() => deleteOperation(product.id)}
+                    className="show-reviews-btn mb-2"
+                    onClick={() => fetchReviews(product.id)}
                   >
-                    Delete
+                    Show Reviews
+                  </button>
+
+                  {/* Mark Out of Stock Button */}
+                  <button
+                    onClick={() => handleOutOfStockClick(product)}
+                    className={`out-of-stock-btn ${
+                      product.stock_status === "Out of Stock" ? "disabled" : ""
+                    }`}
+                    disabled={product.stock_status === "Out of Stock"}
+                  >
+                    {product.stock_status === "Out of Stock"
+                      ? "Marked as Out of Stock"
+                      : "Mark Out of Stock"}
                   </button>
                 </div>
               </div>
@@ -112,6 +188,57 @@ const SearchResults = () => {
           </div>
         )}
       </div>
+
+      {/* Modal to show reviews */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Reviews</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4>Average Rating: {productAverageRating} stars</h4>
+          {reviews.length > 0 ? (
+            <ul>
+              {reviews.map((review) => (
+                <li key={review.id}>
+                  <strong>
+                    {review.buyer ? review.buyer.name : "Anonymous"}:
+                  </strong>{" "}
+                  {review.review} ({review.rating} stars)
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No reviews available for this product.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Confirmation Modal to mark product as out of stock */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Mark Out of Stock</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to mark{" "}
+          <strong>{productToMarkOutOfStock?.name}</strong> as out of stock?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmMarkOutOfStock}>
+            Yes, Mark Out of Stock
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

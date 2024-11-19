@@ -59,7 +59,7 @@ const PaymentDetails = () => {
               </h4>
               <p>Total Price Paid: Ksh {paymentDetails.total_price}</p>
               <p>Payment Code: {paymentDetails.proof_of_payment}</p>
-              <p>Product Name: {paymentDetails.product_name}</p>
+              <p>Product Name: {paymentDetails.product_name} Maize</p>
 
               {/* <p>Farmer's Name: {paymentDetails.farmer_name}</p> */}
               <p>Delivery Zone: {paymentDetails.delivery_zone_name}</p>

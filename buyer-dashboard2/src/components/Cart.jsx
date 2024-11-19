@@ -72,7 +72,8 @@ const Cart = () => {
                     )}
                   </td>
                   <td>
-                    {item.product?.name || "Product details not available"}
+                    {item.product?.name || "Product details not available"}{" "}
+                    Maize
                   </td>
                   <td>{item.product?.price}</td>
                   <td>

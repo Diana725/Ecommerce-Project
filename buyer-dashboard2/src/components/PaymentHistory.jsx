@@ -152,10 +152,16 @@ const PaymentHistory = () => {
           <tbody>
             {payments.map((payment) => (
               <tr key={payment.id}>
-                <td>{payment.status}</td>
+                <td>
+                  {payment.status === "Payment Pending"
+                    ? `Payment Pending (Awaiting Farmer Confirmation)`
+                    : payment.status === "Payment Confirmed"
+                    ? `Payment Confirmed (Farmer Verified)`
+                    : payment.status}
+                </td>
                 <td>{payment.total_price}</td>
                 <td>{payment.proof_of_payment || "Not provided"}</td>
-                <td>{payment.product.name}</td>
+                <td>{payment.product.name} Maize</td>
                 <td>
                   {payment.delivery_location
                     ? payment.delivery_location.location_name

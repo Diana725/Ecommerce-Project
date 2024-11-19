@@ -81,10 +81,10 @@ const PricePredictions = () => {
               required
             >
               <option value="">Select</option>
-              <option value="Traditional">Traditional</option>
-              <option value="White">White</option>
-              <option value="Yellow">Yellow</option>
-              <option value="URI">URI</option>
+              <option value="Traditional">Traditional Maize</option>
+              <option value="White">White Maize</option>
+              <option value="Yellow">Yellow Maize</option>
+              <option value="URI">URI Maize</option>
             </select>
           </div>
 

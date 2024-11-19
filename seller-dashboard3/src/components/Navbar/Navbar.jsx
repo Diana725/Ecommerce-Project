@@ -112,7 +112,7 @@ const Navbar = () => {
                   className="nav-link"
                   to="/farmer/payments"
                   activeClassName="active"
-                  style={{ marginRight: "20px" }}
+                  // style={{ marginRight: "20px" }}
                 >
                   Payment Details{" "}
                   {hasNewPayments && <span className="blue-dot"></span>}

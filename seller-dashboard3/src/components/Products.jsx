@@ -13,6 +13,8 @@ const ProductList = () => {
     totalReviews: 0,
   });
   const [productAverageRating, setProductAverageRating] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // Confirmation modal state
+  const [productToMarkOutOfStock, setProductToMarkOutOfStock] = useState(null); // Product to be marked out of stock
 
   useEffect(() => {
     getData();
@@ -94,6 +96,7 @@ const ProductList = () => {
   }
 
   // Function to mark a product as out of stock
+  // Function to mark a product as out of stock
   async function markOutOfStock(id) {
     const token = localStorage.getItem("token");
 
@@ -112,13 +115,28 @@ const ProductList = () => {
       // Update product status in state to reflect the change
       const updatedData = data.map((product) => {
         if (product.id === id) {
-          return { ...product, is_out_of_stock: true };
+          return { ...product, stock_status: "Out of Stock" }; // Update stock status
         }
         return product;
       });
-      setData(updatedData);
+
+      setData(updatedData); // Update the data state with the modified product status
+      setShowConfirmModal(false); // Close the modal after marking out of stock
     }
   }
+
+  // Open the confirmation modal when clicking "Mark Out of Stock"
+  const handleOutOfStockClick = (product) => {
+    setProductToMarkOutOfStock(product);
+    setShowConfirmModal(true); // Open the confirmation modal
+  };
+
+  // Confirm the action to mark as out of stock
+  const confirmMarkOutOfStock = () => {
+    if (productToMarkOutOfStock) {
+      markOutOfStock(productToMarkOutOfStock.id);
+    }
+  };
 
   return (
     <div>
@@ -137,7 +155,7 @@ const ProductList = () => {
             <td>#</td>
             <td>Name</td>
             <td>Price in Kshs</td>
-            <td>Quantity in Kgs</td>
+            <td>Quantity in Kgs per Item</td>
             <td>Description</td>
             <td>Image</td>
             <td>Update Item</td>
@@ -149,15 +167,15 @@ const ProductList = () => {
           {data.map((item, index) => (
             <tr key={item.id}>
               <td className="fw-bold">{index + 1}</td> {/* Row number */}
-              <td>{item.name}</td>
+              <td>{item.name} Maize</td>
               <td>{item.price}</td>
-              <td>{item.quantity}</td>
+              <td>{item.quantity} Kgs per item</td>
               <td>
                 {item.description} <br /> Payment: {item.payment_method}
               </td>
               <td>
                 <img
-                  style={{ width: 300 }}
+                  style={{ width: 300, height: 250 }}
                   src={"http://localhost:8000/" + item.file_path}
                   alt={item.name}
                 />
@@ -177,7 +195,7 @@ const ProductList = () => {
               </td>
               <td>
                 <button
-                  onClick={() => markOutOfStock(item.id)}
+                  onClick={() => handleOutOfStockClick(item)} // Trigger confirmation modal
                   className={`out-of-stock-btn ${
                     item.stock_status === "Out of Stock" ? "disabled" : ""
                   }`}
@@ -222,6 +240,28 @@ const ProductList = () => {
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Confirmation Modal to mark product as out of stock */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Mark Out of Stock</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to mark{" "}
+          <strong>{productToMarkOutOfStock?.name}</strong> as out of stock?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmMarkOutOfStock}>
+            Yes, Mark Out of Stock
           </Button>
         </Modal.Footer>
       </Modal>

@@ -100,7 +100,7 @@ const Product = () => {
           />
         </div>
         <div className="col-md-6">
-          <h1 className="display-5">{product.name}</h1>
+          <h1 className="display-5">{product.name} Maize</h1>
           <h3 className="display-6 fw-bold my-4">ksh {product.price}</h3>
           <p className="lead">{product.quantity} Kgs</p>
           <p className="lead">{product.description}</p>

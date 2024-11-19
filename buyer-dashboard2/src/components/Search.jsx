@@ -2,29 +2,30 @@ import React, { useState, useEffect } from "react";
 import { useLocation, NavLink } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 
-// import "./SearchResults.css"; // Add custom styles if needed
-
 const SearchResults = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
+  // Get the 'query' parameter from the URL (e.g., ?query=White+Maize)
   const query = new URLSearchParams(location.search).get("query");
 
   useEffect(() => {
     const fetchSearchResults = async () => {
       setLoading(true);
       try {
+        // Make a GET request to the search API with the query
         const response = await fetch(
-          `http://localhost:8000/api/buyerSearch?query=${encodeURIComponent(
-            query
-          )}`
+          `http://localhost:8000/api/buyer-search/${encodeURIComponent(query)}`
         );
+
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+
+        // Parse the JSON response
         const data = await response.json();
-        setResults(data.products); // Ensure you're accessing the 'products' property of the response data
+        setResults(data); // Assuming the API returns the product array directly
       } catch (error) {
         console.error("Error fetching search results:", error);
       } finally {
@@ -32,6 +33,7 @@ const SearchResults = () => {
       }
     };
 
+    // Only fetch results if there's a query present
     if (query) {
       fetchSearchResults();
     }
@@ -51,7 +53,7 @@ const SearchResults = () => {
             <div className="col-md-3 mb-4" key={product.id}>
               <div className="card h-100 text-center p-4">
                 <img
-                  src={`http://localhost:8000/${product.file_path}`}
+                  src={`http://localhost:8000/${product.file_path}`} // Make sure 'file_path' contains the correct image URL
                   className="card-img-top"
                   alt={product.name}
                   height="250px"
@@ -60,12 +62,12 @@ const SearchResults = () => {
                   <h5 className="card-title mb-0">
                     {product.name.substring(0, 12)}...
                   </h5>
-                  <p className="card-text lead fw-bold">ksh{product.price}</p>
+                  <p className="card-text lead fw-bold">ksh {product.price}</p>
                   <NavLink
                     to={`/products/${product.id}`}
                     className="btn btn-outline-dark"
                   >
-                    Buy Now
+                    View Product
                   </NavLink>
                 </div>
               </div>

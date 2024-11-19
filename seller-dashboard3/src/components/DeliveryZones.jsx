@@ -11,6 +11,7 @@ const DeliveryZones = () => {
   });
   const [locationsMap, setLocationsMap] = useState({});
   const [addingLocationZoneId, setAddingLocationZoneId] = useState(null);
+  const [addingLocationZoneName, setAddingLocationZoneName] = useState("");
 
   // Fetch existing zones from API
   useEffect(() => {
@@ -135,6 +136,7 @@ const DeliveryZones = () => {
             );
             setNewLocation({ location_name: "", delivery_fee: "" });
             setAddingLocationZoneId(null);
+            setAddingLocationZoneName("");
           } else {
             alert("Error: Location could not be added.");
           }
@@ -142,6 +144,33 @@ const DeliveryZones = () => {
         .catch((error) => {
           console.error("Error adding location:", error);
           alert("Failed to add location. Please try again.");
+        });
+    }
+  };
+
+  // Function to handle the removal of a delivery zone
+  const handleZoneRemove = (zoneId) => {
+    if (window.confirm("Are you sure you want to delete this zone?")) {
+      fetch(`http://localhost:8000/api/delivery-zones/${zoneId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          setZones((prevZones) =>
+            prevZones.filter((zone) => zone.id !== zoneId)
+          );
+          alert("Zone deleted successfully!");
+        })
+        .catch((error) => {
+          console.error("Error deleting zone:", error);
+          alert(
+            "Cannot delete this location because it is referenced in the Payment Details Table, add another delivery zone with your updated Location Name"
+          );
         });
     }
   };
@@ -173,7 +202,9 @@ const DeliveryZones = () => {
         })
         .catch((error) => {
           console.error("Error deleting location:", error);
-          alert("Failed to delete location. Please try again.");
+          alert(
+            "Cannot delete this location because it is referenced in the Payment Details Table, add another delivery zone with your updated Location Name"
+          );
         });
     }
   };
@@ -187,6 +218,7 @@ const DeliveryZones = () => {
           <label>Delivery Zone Name</label>
           <input
             type="text"
+            placeholder="eg. Nakuru County"
             className="form-control"
             name="zone_name"
             value={newZone.zone_name}
@@ -218,9 +250,19 @@ const DeliveryZones = () => {
 
             <button
               className="btn btn-sm btn-primary mb-2 ms-2"
-              onClick={() => setAddingLocationZoneId(zone.id)}
+              onClick={() => {
+                setAddingLocationZoneId(zone.id);
+                setAddingLocationZoneName(zone.zone_name);
+              }}
             >
               Add Location
+            </button>
+
+            <button
+              className="btn btn-sm btn-danger mb-2 mx-2"
+              onClick={() => handleZoneRemove(zone.id)}
+            >
+              Remove Zone
             </button>
 
             {locationsMap[zone.id] && locationsMap[zone.id].length > 0 && (
@@ -246,48 +288,37 @@ const DeliveryZones = () => {
       </ul>
 
       {addingLocationZoneId && (
-        <div className="card mb-4">
-          <div className="card-body">
-            <h5 className="card-title">Add Location to Zone</h5>
-            <form onSubmit={handleLocationSubmit}>
-              <div className="form-group mb-3">
-                <label>Location Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="location_name"
-                  value={newLocation.location_name}
-                  onChange={handleLocationInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group mb-3">
-                <label>Delivery Fee</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  name="delivery_fee"
-                  value={newLocation.delivery_fee}
-                  onChange={handleLocationInputChange}
-                  required
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Add Location
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary ms-2"
-                onClick={() => setAddingLocationZoneId(null)}
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
+        <div className="mt-4">
+          <h3>Add Location to Zone: {addingLocationZoneName}</h3>
+          <form onSubmit={handleLocationSubmit}>
+            <div className="form-group mb-3">
+              <label>Location Name</label>
+              <input
+                type="text"
+                className="form-control"
+                name="location_name"
+                value={newLocation.location_name}
+                onChange={handleLocationInputChange}
+                required
+              />
+            </div>
+            <div className="form-group mb-3">
+              <label>Delivery Fee</label>
+              <input
+                type="number"
+                className="form-control"
+                name="delivery_fee"
+                value={newLocation.delivery_fee}
+                onChange={handleLocationInputChange}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary">
+              Add Location
+            </button>
+          </form>
         </div>
       )}
-      <br />
-      <hr />
     </div>
   );
 };

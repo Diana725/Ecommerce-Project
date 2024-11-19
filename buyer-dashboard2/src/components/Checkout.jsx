@@ -142,7 +142,9 @@ const Checkout = () => {
       }
 
       // Set modal message, show modal, and store payment ID on success
-      setModalMessage(`Payment confirmed for ${item.productDetails.name}`);
+      setModalMessage(
+        `Payment confirmed for ${item.productDetails.name} Maize`
+      );
       setPaymentId(result.payment_id); // Save the payment ID
       setShowModal(true);
 
@@ -299,14 +301,16 @@ const Checkout = () => {
               <li key={item.product.id} className="list-group-item">
                 <div className="d-flex align-items-center mb-3">
                   <strong className="me-2 fs-3">#{index + 1}</strong>
-                  <h5 className="fs-1 fw-bold">{item.productDetails.name}</h5>
+                  <h5 className="fs-1 fw-bold">
+                    {item.productDetails.name} Maize
+                  </h5>
                   <img
                     src={`http://localhost:8000/${item.productDetails.file_path}`}
                     alt={item.productDetails.name}
                     style={{
                       width: "200px",
                       height: "150px",
-                      marginLeft: "300px",
+                      marginLeft: "200px",
                       marginTop: "10px",
                     }}
                   />

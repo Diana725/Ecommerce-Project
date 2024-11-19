@@ -7,10 +7,14 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false); // State for login loading
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false); // State for forgot password loading
   const navigate = useNavigate();
 
+  // Function to handle forgot password
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setForgotPasswordLoading(true); // Start forgot password loading
 
     try {
       const response = await fetch(
@@ -28,6 +32,7 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(errorData.message || "Failed to send reset link.");
+        setForgotPasswordLoading(false); // Stop forgot password loading
         return;
       }
 
@@ -38,10 +43,14 @@ const Login = () => {
       console.error("Error sending reset link", error);
       setErrorMessage("Failed to send reset link. Please try again.");
     }
+
+    setForgotPasswordLoading(false); // Stop forgot password loading
   };
+
   // Function to handle the login process
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoginLoading(true); // Start login loading
 
     let item = { email, password };
 
@@ -69,6 +78,7 @@ const Login = () => {
         } else {
           setErrorMessage(errorData.message || "Failed to login.");
         }
+        setLoginLoading(false); // Stop login loading
         return;
       }
 
@@ -79,6 +89,7 @@ const Login = () => {
         setErrorMessage(
           "Your email is not verified. Please check your inbox for the verification link."
         );
+        setLoginLoading(false); // Stop login loading
         return;
       }
 
@@ -95,30 +106,8 @@ const Login = () => {
       console.error("Error during login:", error);
       setErrorMessage("Failed to login. Please try again.");
     }
-  };
 
-  // Function to make authenticated requests
-  const fetchWithAuth = async (url, options = {}) => {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-        ...options.headers,
-      },
-    });
-
-    // Handle errors
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error during fetch:", errorData);
-      throw new Error(errorData.message || "Failed to fetch.");
-    }
-
-    return response.json();
+    setLoginLoading(false); // Stop login loading
   };
 
   return (
@@ -139,7 +128,7 @@ const Login = () => {
           <div className="form-group">
             <label htmlFor="name">Email:</label>
             <input
-              type="text"
+              type="email"
               className="form-control"
               id="name"
               placeholder="Enter your email"
@@ -160,8 +149,23 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary mt-4">
-            Login
+          <button
+            type="submit"
+            className="btn btn-primary mt-4"
+            disabled={loginLoading} // Disable login button while loading
+          >
+            {loginLoading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>{" "}
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         <div className="mt-3">
@@ -176,9 +180,21 @@ const Login = () => {
             <a
               href="#"
               className="btn-link"
-              onClick={handleForgotPassword} // Trigger the forgot password function
+              onClick={handleForgotPassword}
+              disabled={forgotPasswordLoading} // Disable forgot password link while loading
             >
-              Click here
+              {forgotPasswordLoading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>{" "}
+                  Sending reset link...
+                </>
+              ) : (
+                "Click here"
+              )}
             </a>
           </p>
         </div>

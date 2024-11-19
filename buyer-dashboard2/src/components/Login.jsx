@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap"; // Import Spinner
+import { Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [message, setMessage] = useState(""); // State to show the forgot password message
-  const [loading, setLoading] = useState(false); // State to handle loading
+  const [message, setMessage] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false); // State for login loading
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false); // State for forgot password loading
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    setLoading(true); // Show spinner
+    setForgotPasswordLoading(true); // Show spinner for forgot password
 
     try {
       const response = await fetch(
@@ -31,7 +32,7 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(errorData.message || "Failed to send reset link.");
-        setLoading(false); // Hide spinner
+        setForgotPasswordLoading(false); // Hide spinner for forgot password
         return;
       }
 
@@ -42,13 +43,13 @@ const Login = () => {
       console.error("Error sending reset link", error);
       setErrorMessage("Failed to send reset link. Please try again.");
     } finally {
-      setLoading(false); // Hide spinner after request completion
+      setForgotPasswordLoading(false); // Hide spinner after forgot password request completion
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Show spinner
+    setLoginLoading(true); // Show spinner for login
 
     const item = { email, password };
 
@@ -66,14 +67,14 @@ const Login = () => {
         const errorData = await response.json();
         console.error("Error during login:", errorData);
         setErrorMessage(errorData.message || "Failed to login.");
-        setLoading(false); // Hide spinner
+        setLoginLoading(false); // Hide spinner for login
         return;
       }
 
       const result = await response.json();
       if (result.is_verified == 1) {
         setErrorMessage("Your email is not verified. Please check your inbox.");
-        setLoading(false); // Hide spinner
+        setLoginLoading(false); // Hide spinner for login
         return;
       }
 
@@ -85,7 +86,7 @@ const Login = () => {
       console.error("Error during login:", error);
       setErrorMessage("Failed to login. Please try again.");
     } finally {
-      setLoading(false); // Hide spinner after request completion
+      setLoginLoading(false); // Hide spinner after login request completion
     }
   };
 
@@ -104,8 +105,8 @@ const Login = () => {
           </div>
         )}
 
-        {/* Display spinner when loading */}
-        {loading && (
+        {/* Display spinner when login is loading */}
+        {loginLoading && (
           <div className="text-center">
             <Spinner animation="border" role="status">
               <span className="visually-hidden">Loading...</span>
@@ -141,9 +142,9 @@ const Login = () => {
           <button
             type="submit"
             className="btn btn-primary mt-4"
-            disabled={loading} // Disable button while loading
+            disabled={loginLoading} // Disable button while login is loading
           >
-            {loading ? "Sending Recovery Email..." : "Login"}
+            {loginLoading ? "Logging in..." : "Login"}
           </button>
         </form>
 
@@ -160,9 +161,9 @@ const Login = () => {
               href="#"
               className="btn-link"
               onClick={handleForgotPassword}
-              disabled={loading} // Disable link while loading
+              disabled={forgotPasswordLoading} // Disable link while forgot password is loading
             >
-              {loading ? "Processing..." : "Click here"}
+              {forgotPasswordLoading ? "Processing..." : "Click here"}
             </a>
           </p>
         </div>

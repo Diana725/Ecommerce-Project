@@ -155,7 +155,7 @@ const FarmerPayments = () => {
               </td>
               <td>{payment.total_price}</td>
               <td>{payment.proof_of_payment || "No proof uploaded"}</td>
-              <td>{payment.product.name}</td>
+              <td>{payment.product.name} Maize</td>
               <td>{payment.delivery_zone.zone_name}</td>
               <td>{payment.delivery_location.location_name}</td>
               <td>
