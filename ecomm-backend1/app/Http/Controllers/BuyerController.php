@@ -77,7 +77,7 @@ public function verifyEmail($token)
     $buyer->email_verification_token = null;
     $buyer->save();
 
-    return  redirect('http://localhost:3000/login')->with('message', 'Email verified successfully! You can now log in.');
+    return  redirect('https://www.buyer.maizeai.me/login')->with('message', 'Email verified successfully! You can now log in.');
 }
 
 

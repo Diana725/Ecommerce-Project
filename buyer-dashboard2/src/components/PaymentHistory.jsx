@@ -16,7 +16,7 @@ const PaymentHistory = () => {
     const fetchPayments = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/buyer/payment/history",
+          "https://www.maizeai.me/api/buyer/payment/history",
           {
             method: "GET",
             headers: {
@@ -47,7 +47,7 @@ const PaymentHistory = () => {
   const markAsDelivered = async (paymentId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/order-payments/${paymentId}/deliver`,
+        `https://www.maizeai.me/api/order-payments/${paymentId}/deliver`,
         {
           method: "PUT",
           headers: {
@@ -87,7 +87,7 @@ const PaymentHistory = () => {
 
   const handleSubmitReview = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/reviews", {
+      const response = await fetch("https://www.maizeai.me/api/reviews", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

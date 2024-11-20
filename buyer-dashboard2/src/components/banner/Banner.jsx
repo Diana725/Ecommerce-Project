@@ -19,7 +19,7 @@ const Banner = () => {
         <span className="logo"> MaizeAI</span> - Are you a farmer? Join us and
         grow your market reach{" "}
         <Link
-          to="http://localhost:3007/"
+          to="https://www.farmer.maizeai.me/"
           className="banner-button"
           target="blank"
         >

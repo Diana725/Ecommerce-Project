@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/farmer/password/reset-request",
+        "https://www.maizeai.me/api/farmer/password/reset-request",
         {
           method: "POST",
           headers: {
@@ -56,7 +56,7 @@ const Login = () => {
 
     try {
       // Call the Laravel API to login the user
-      let response = await fetch("http://localhost:8000/api/login", {
+      let response = await fetch("https://www.maizeai.me/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

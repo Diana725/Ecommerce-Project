@@ -16,7 +16,7 @@ const Register = () => {
     let item = { name, email, password, phone }; // Include phone in the data sent to the server
 
     try {
-      let response = await fetch("http://localhost:8000/api/register", {
+      let response = await fetch("https://www.maizeai.me/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

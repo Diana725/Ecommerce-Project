@@ -63,7 +63,7 @@ const Cart = () => {
                   <td>
                     {item.product ? (
                       <img
-                        src={`http://localhost:8000/${item.product.file_path}`}
+                        src={`https://www.maizeai.me/${item.product.file_path}`}
                         alt={item.product.name}
                         style={{ width: "100px", height: "100px" }}
                       />

@@ -68,7 +68,7 @@ const AddProduct = () => {
     formData.append("description", description);
 
     try {
-      let result = await fetch("http://localhost:8000/api/addProduct", {
+      let result = await fetch("https://www.maizeai.me/api/addProduct", {
         method: "POST",
         body: formData,
         headers: {

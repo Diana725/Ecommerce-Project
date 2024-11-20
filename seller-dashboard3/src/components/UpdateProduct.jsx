@@ -18,7 +18,7 @@ const UpdateProduct = () => {
 
   const getProductDetails = async () => {
     const token = localStorage.getItem("token");
-    let result = await fetch(`http://localhost:8000/api/product/${id}`, {
+    let result = await fetch(`https://www.maizeai.me/api/product/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ const UpdateProduct = () => {
       formData.append("file_path", file); // Ensure correct key name
     }
 
-    let result = await fetch(`http://localhost:8000/api/update/${id}`, {
+    let result = await fetch(`https://www.maizeai.me/api/update/${id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

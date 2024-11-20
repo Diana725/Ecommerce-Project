@@ -14,7 +14,7 @@ const FarmerPayments = () => {
   const fetchPayments = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/farmer/payments",
+        "https://www.maizeai.me/api/farmer/payments",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -44,7 +44,7 @@ const FarmerPayments = () => {
   const confirmPayment = async (paymentId) => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/farmer/payment/confirm",
+        "https://www.maizeai.me/api/farmer/payment/confirm",
         {
           method: "POST",
           headers: {
@@ -83,7 +83,7 @@ const FarmerPayments = () => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:8000/api/order-payments/${selectedPayment.id}/ship`,
+        `https://www.maizeai.me/api/order-payments/${selectedPayment.id}/ship`,
         {
           method: "PUT",
           headers: {

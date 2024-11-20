@@ -16,7 +16,7 @@ const PaymentDetails = () => {
     const fetchPaymentDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/buyer/payment/status/${paymentId}`,
+          `https://www.maizeai.me/api/buyer/payment/status/${paymentId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

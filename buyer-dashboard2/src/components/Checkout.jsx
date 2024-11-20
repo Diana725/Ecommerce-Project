@@ -29,7 +29,7 @@ const Checkout = () => {
         const productDetails = await Promise.all(
           cartItems.map(async (item) => {
             const response = await fetch(
-              `http://localhost:8000/api/buyer/products/${item.product.id}`
+              `https://www.maizeai.me/api/buyer/products/${item.product.id}`
             );
             if (!response.ok) {
               throw new Error("Failed to fetch product details");
@@ -110,7 +110,7 @@ const Checkout = () => {
 
     try {
       // Proceed with the payment submission
-      const response = await fetch("http://localhost:8000/api/buyer/payment", {
+      const response = await fetch("https://www.maizeai.me/api/buyer/payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -198,7 +198,7 @@ const Checkout = () => {
   const fetchZones = async (farmerId, productId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/buyers/farmers/${farmerId}/delivery-zones`
+        `https://www.maizeai.me/api/buyers/farmers/${farmerId}/delivery-zones`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch delivery zones");
@@ -216,7 +216,7 @@ const Checkout = () => {
   const fetchLocations = async (zoneId, productId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/buyers/delivery-zones/${zoneId}/locations`
+        `https://www.maizeai.me/api/buyers/delivery-zones/${zoneId}/locations`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch delivery locations");
@@ -305,7 +305,7 @@ const Checkout = () => {
                     {item.productDetails.name} Maize
                   </h5>
                   <img
-                    src={`http://localhost:8000/${item.productDetails.file_path}`}
+                    src={`https://www.maizeai.me/${item.productDetails.file_path}`}
                     alt={item.productDetails.name}
                     style={{
                       width: "200px",

@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/buyer/password/reset-request",
+        "https://www.maizeai.me/api/buyer/password/reset-request",
         {
           method: "POST",
           headers: {
@@ -54,7 +54,7 @@ const Login = () => {
     const item = { email, password };
 
     try {
-      const response = await fetch("http://localhost:8000/api/buyerLogin", {
+      const response = await fetch("https://www.maizeai.me/api/buyerLogin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

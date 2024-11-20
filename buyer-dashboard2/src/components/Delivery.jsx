@@ -60,7 +60,7 @@ const DeliveryFeeCalculator = ({ farmerId, onFeeCalculated }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/buyer/calculate-delivery-fee",
+        "https://www.maizeai.me/api/buyer/calculate-delivery-fee",
         {
           method: "POST",
           headers: {

@@ -12,7 +12,7 @@ const Reviews = ({ productId }) => {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/reviews/product/${productId}`, // Fetch reviews by productId
+          `https://www.maizeai.me/api/reviews/product/${productId}`, // Fetch reviews by productId
           {
             method: "GET",
             headers: {

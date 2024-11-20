@@ -69,7 +69,7 @@ const ResetPassword = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/buyer/password/reset",
+        "https://www.maizeai.me/api/buyer/password/reset",
         {
           method: "POST",
           headers: {

@@ -15,7 +15,7 @@ const DeliveryZones = () => {
 
   // Fetch existing zones from API
   useEffect(() => {
-    fetch("http://localhost:8000/api/delivery-zones", {
+    fetch("https://www.maizeai.me/api/delivery-zones", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -37,7 +37,7 @@ const DeliveryZones = () => {
   }, []);
 
   const fetchLocations = (zoneId) => {
-    fetch(`http://localhost:8000/api/delivery-zones/${zoneId}/locations`, {
+    fetch(`https://www.maizeai.me/api/delivery-zones/${zoneId}/locations`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -70,7 +70,7 @@ const DeliveryZones = () => {
   const handleZoneSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8000/api/delivery-zones", {
+    fetch("https://www.maizeai.me/api/delivery-zones", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,7 +105,7 @@ const DeliveryZones = () => {
 
     if (addingLocationZoneId) {
       fetch(
-        `http://localhost:8000/api/delivery-zones/${addingLocationZoneId}/locations`,
+        `https://www.maizeai.me/api/delivery-zones/${addingLocationZoneId}/locations`,
         {
           method: "POST",
           headers: {
@@ -151,7 +151,7 @@ const DeliveryZones = () => {
   // Function to handle the removal of a delivery zone
   const handleZoneRemove = (zoneId) => {
     if (window.confirm("Are you sure you want to delete this zone?")) {
-      fetch(`http://localhost:8000/api/delivery-zones/${zoneId}`, {
+      fetch(`https://www.maizeai.me/api/delivery-zones/${zoneId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -179,7 +179,7 @@ const DeliveryZones = () => {
   const handleLocationRemove = (zoneId, locationId) => {
     if (window.confirm("Are you sure you want to delete this location?")) {
       fetch(
-        `http://localhost:8000/api/delivery-zones/${zoneId}/locations/${locationId}`,
+        `https://www.maizeai.me/api/delivery-zones/${zoneId}/locations/${locationId}`,
         {
           method: "DELETE",
           headers: {

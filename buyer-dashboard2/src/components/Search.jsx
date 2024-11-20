@@ -16,7 +16,7 @@ const SearchResults = () => {
       try {
         // Make a GET request to the search API with the query
         const response = await fetch(
-          `http://localhost:8000/api/buyer-search/${encodeURIComponent(query)}`
+          `https://www.maizeai.me/api/buyer-search/${encodeURIComponent(query)}`
         );
 
         if (!response.ok) {

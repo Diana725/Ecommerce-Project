@@ -12,7 +12,7 @@ const BuyerMessageForm = ({ productId }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/send-buyer-message",
+        "https://www.maizeai.me/api/send-buyer-message",
         {
           method: "POST",
           headers: {

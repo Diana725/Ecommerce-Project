@@ -48,7 +48,7 @@ const Product = () => {
       setError(null);
       try {
         const response = await fetch(
-          `http://localhost:8000/api/buyer/products/${id}`
+          `https://www.maizeai.me/api/buyer/products/${id}`
         );
 
         if (!response.ok) {
@@ -93,7 +93,7 @@ const Product = () => {
       <>
         <div className="col-md-6">
           <img
-            src={`http://localhost:8000/${product.file_path}`} // Dynamic image source
+            src={`https://www.maizeai.me/${product.file_path}`} // Dynamic image source
             alt={product.name}
             height="400px"
             width="500px"

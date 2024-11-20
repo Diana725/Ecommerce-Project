@@ -25,7 +25,7 @@ const SearchResults = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:8000/api/search/${encodeURIComponent(query)}`,
+          `https://www.maizeai.me/api/search/${encodeURIComponent(query)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -54,7 +54,7 @@ const SearchResults = () => {
 
     try {
       const result = await fetch(
-        `http://localhost:8000/api/product/${productId}/reviews`,
+        `https://www.maizeai.me/api/product/${productId}/reviews`,
         {
           method: "GET",
           headers: {
@@ -91,7 +91,7 @@ const SearchResults = () => {
 
     try {
       const result = await fetch(
-        `http://localhost:8000/api/product/${id}/out-of-stock`,
+        `https://www.maizeai.me/api/product/${id}/out-of-stock`,
         {
           method: "PUT",
           headers: {
@@ -136,7 +136,7 @@ const SearchResults = () => {
             <div className="col-md-3 mb-4" key={product.id}>
               <div className="card h-100 text-center p-4">
                 <img
-                  src={`http://localhost:8000/${product.file_path}`}
+                  src={`https://www.maizeai.me/${product.file_path}`}
                   className="card-img-top"
                   alt={product.name}
                   height="250px"

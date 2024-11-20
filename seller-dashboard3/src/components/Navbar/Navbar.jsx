@@ -24,7 +24,7 @@ const Navbar = () => {
     const interval = setInterval(async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/farmer/check-new-payments",
+          "https://www.maizeai.me/api/farmer/check-new-payments",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

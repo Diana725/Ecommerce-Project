@@ -17,7 +17,7 @@
                         <h2>Email Verified</h2>
                     </div>
                     <div class="card-body text-center">
-                        <p>Your email has been verified successfully! You can now <a href="{{ url('http://localhost:3000/login') }}">log in</a>.</p>
+                        <p>Your email has been verified successfully! You can now <a href="{{ url('https://www.buyer.maizeai.me/login') }}">log in</a>.</p>
                     </div>
                 </div>
             </div>

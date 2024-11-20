@@ -63,7 +63,7 @@ public function verifyEmail($token)
     $user->save();
 
     // Redirect to the farmer login page
-    return redirect('http://localhost:3007/login')->with('message', 'Email verified successfully! You can now log in.');
+    return redirect('https://www.farmer.maizeai.me/login')->with('message', 'Email verified successfully! You can now log in.');
 }
 
     // Registration function

@@ -40,7 +40,7 @@ const Navbar = () => {
     if (userType === "buyer") {
       navigate("/login");
     } else if (userType === "farmer") {
-      window.location.href = "http://localhost:3007/login"; // Redirect to farmer's login
+      window.location.href = "https://www.farmer.maizeai.me/login"; // Redirect to farmer's login
     }
     setShowLoginModal(false); // Close modal
   };
@@ -49,7 +49,7 @@ const Navbar = () => {
     if (userType === "buyer") {
       navigate("/register");
     } else if (userType === "farmer") {
-      window.location.href = "http://localhost:3007/register"; // Redirect to farmer's registration
+      window.location.href = "https://www.farmer.maizeai.me/register"; // Redirect to farmer's registration
     }
     setShowRegisterModal(false); // Close modal
   };

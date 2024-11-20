@@ -38,7 +38,7 @@ const Register = () => {
 
     try {
       let response = await fetch(
-        "http://localhost:8000/api/buyerRegistration",
+        "https://www.maizeai.me/api/buyerRegistration",
         {
           method: "POST",
           headers: {

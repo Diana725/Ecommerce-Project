@@ -13,7 +13,7 @@ const Products = () => {
   useEffect(() => {
     const getProducts = async () => {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/api/buyer/products");
+      const response = await fetch("https://www.maizeai.me/api/buyer/products");
       if (componentMounted) {
         const products = await response.json();
         setData(products);
@@ -55,7 +55,7 @@ const Products = () => {
           <div className="col-md-3 mb-4" key={product.id}>
             <div className="card h-100 text-center p-4 product-card">
               <img
-                src={"http://localhost:8000/" + product.file_path}
+                src={"https://www.maizeai.me/" + product.file_path}
                 className="card-img-top"
                 alt={product.name}
                 height="250px"

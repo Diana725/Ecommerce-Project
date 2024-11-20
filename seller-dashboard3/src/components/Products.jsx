@@ -24,7 +24,7 @@ const ProductList = () => {
   async function getData() {
     const token = localStorage.getItem("token");
 
-    let result = await fetch("http://localhost:8000/api/list", {
+    let result = await fetch("https://www.maizeai.me/api/list", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const ProductList = () => {
     const token = localStorage.getItem("token");
 
     let result = await fetch(
-      `http://localhost:8000/api/product/${productId}/reviews`,
+      `https://www.maizeai.me/api/product/${productId}/reviews`,
       {
         method: "GET",
         headers: {
@@ -101,7 +101,7 @@ const ProductList = () => {
     const token = localStorage.getItem("token");
 
     let result = await fetch(
-      `http://localhost:8000/api/product/${id}/out-of-stock`,
+      `https://www.maizeai.me/api/product/${id}/out-of-stock`,
       {
         method: "PUT",
         headers: {
@@ -176,7 +176,7 @@ const ProductList = () => {
               <td>
                 <img
                   style={{ width: 300, height: 250 }}
-                  src={"http://localhost:8000/" + item.file_path}
+                  src={"https://www.maizeai.me/" + item.file_path}
                   alt={item.name}
                 />
               </td>

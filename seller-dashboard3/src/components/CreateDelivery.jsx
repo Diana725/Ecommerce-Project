@@ -12,7 +12,7 @@ const CreateDelivery = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/farmer/delivery",
+        "https://www.maizeai.me/api/farmer/delivery",
         {
           method: "POST",
           headers: {

@@ -12,7 +12,7 @@ const DeliveryTrackingBuyer = () => {
     const fetchDelivery = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/buyer/delivery/${paymentId}`,
+          `https://www.maizeai.me/api/buyer/delivery/${paymentId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

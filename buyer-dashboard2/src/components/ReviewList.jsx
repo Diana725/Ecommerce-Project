@@ -6,7 +6,7 @@ const ReviewsList = ({ sellerId }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       const response = await fetch(
-        `http://localhost:8000/api/reviews/seller/${sellerId}`
+        `https://www.maizeai.me/api/reviews/seller/${sellerId}`
       );
       const data = await response.json();
       setReviews(data);

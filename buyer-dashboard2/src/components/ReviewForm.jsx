@@ -16,7 +16,7 @@ const ReviewForm = ({ sellerId, productId, onReviewSubmit }) => {
     const buyerId = userInfo.id; // Retrieve buyer ID from localStorage
     const token = userInfo.token; // Assuming the token is stored in user-info object
 
-    const response = await fetch("http://localhost:8000/api/reviews", {
+    const response = await fetch("https://www.maizeai.me/api/reviews", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
