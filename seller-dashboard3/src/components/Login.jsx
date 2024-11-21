@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -10,6 +10,30 @@ const Login = () => {
   const [loginLoading, setLoginLoading] = useState(false); // State for login loading
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false); // State for forgot password loading
   const navigate = useNavigate();
+
+  //function to verify email
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      // Call the backend API to verify the email
+      fetch(`https://www.maizeai.me/api/verify-email/${token}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message === "Email verified successfully") {
+            setMessage("Email verified successfully! You can now log in.");
+          } else {
+            setErrorMessage(data.message || "Invalid verification token.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error verifying email:", error);
+          setErrorMessage("Failed to verify email. Please try again.");
+        });
+    }
+  }, []);
 
   // Function to handle forgot password
   const handleForgotPassword = async (e) => {

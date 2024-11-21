@@ -20,13 +20,17 @@ class FarmerVerificationMail extends Mailable
     }
 
     public function build()
-    {
-        $frontendUrl = 'https://www.farmer.maizeai.me'; // Your frontend URL
-        $verificationUrl = rtrim($frontendUrl, '/') . "/verify-email?token={$this->token}";
+{
+    // Your frontend login page URL
+    $frontendLoginUrl = 'https://www.farmer.maizeai.me/login'; 
 
-        return $this->view('emails.farmer_verification')
-            ->with(['verificationUrl' => $verificationUrl])
-            ->subject('Verify Your Farmer Account');
-    }
+    // Append the token as a query parameter to the login page URL
+    $verificationUrl = rtrim($frontendLoginUrl, '/') . "?token={$this->token}";
+
+    return $this->view('emails.farmer_verification')
+        ->with(['verificationUrl' => $verificationUrl]) // Pass the URL to the email template
+        ->subject('Verify Your Farmer Account');
+}
+
 }
 
