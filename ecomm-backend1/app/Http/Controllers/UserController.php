@@ -70,7 +70,7 @@ public function verifyEmail($token)
     public function register(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|max:10',
+        'name' => 'required|string|max:30',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:5',
         'phone' => 'required|string|max:15',
