@@ -22,8 +22,10 @@ const Login = () => {
       fetch(`https://www.maizeai.me/api/verify-email/${token}`)
         .then((response) => response.json())
         .then((data) => {
-          if (data.message === "Email verified successfully") {
-            setMessage("Email verified successfully! You can now log in.");
+          if (
+            data.message === "Email verified successfully! You can now log in."
+          ) {
+            setMessage(data.message);
           } else {
             setErrorMessage(data.message || "Invalid verification token.");
           }

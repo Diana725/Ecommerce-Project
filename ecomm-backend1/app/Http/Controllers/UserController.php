@@ -62,9 +62,10 @@ public function verifyEmail($token)
     $user->email_verification_token = null; // Clear the token
     $user->save();
 
-    // Redirect to the farmer login page
-    return redirect('https://www.farmer.maizeai.me/login')->with('message', 'Email verified successfully! You can now log in.');
+    // Return a success response
+    return response()->json(['message' => 'Email verified successfully! You can now log in.']);
 }
+
 
     // Registration function
     public function register(Request $request)
