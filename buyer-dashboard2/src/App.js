@@ -53,42 +53,17 @@ const App = () => {
           path="/delivery-tracking/:paymentId"
           element={<DeliveryTrackingBuyer />}
         />
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/login" element={<Login />} />
         <Route path="/password/reset-form" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/checkout" element={<Checkout />} />
         <Route
           path="/payment-details/:paymentId"
-          element={
-            <ProtectedRoute>
-              <PaymentDetails />
-            </ProtectedRoute>
-          }
+          element={<PaymentDetails />}
         />
-        <Route
-          path="/payment-history"
-          element={
-            <ProtectedRoute>
-              <PaymentHistory />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/payment-history" element={<PaymentHistory />} />
       </Routes>
       {!shouldHideNavAndFooter && <Footer />}
     </div>
