@@ -39,7 +39,7 @@ Route::put('/product/{id}/out-of-stock', [ProductController::class, 'markOutOfSt
 //email verification routes
 Route::get('/buyer/verify-email/{token}', [BuyerController::class, 'verifyEmail']);
 //Route::get('/farmer/verify-email/{token}', [UserController::class, 'verifyEmail']);
-Route::get('verify-email/{token}', [AuthController::class, 'verifyEmail']);
+Route::get('verify-email/{token}', [UserController::class, 'verifyEmail']);
 
 
 // Password Reset Routes for Buyers
