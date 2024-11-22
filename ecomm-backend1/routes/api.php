@@ -35,6 +35,7 @@ Route::get('/buyers/farmers/{farmerId}/delivery-zones', [DeliveryZoneController:
     // Route to fetch reviews for a product
 Route::get('/product/{id}/reviews', [ProductController::class, 'getProductReviews']);
 Route::put('/product/{id}/out-of-stock', [ProductController::class, 'markOutOfStock']);
+Route::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
 
 //email verification routes
 Route::get('/buyer/verify-email/{token}', [BuyerController::class, 'verifyEmail']);
@@ -130,7 +131,7 @@ Route::middleware(['auth:buyer'])->group(function () {
     Route::put('/order-payments/{id}/deliver', [PaymentController::class, 'updateDeliveryStatusToDelivered']);
 
     //routes for reviewsRoute::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
-    Route::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
+    // Route::get('/reviews/product/{productId}', [ReviewController::class, 'getByProductId']);
     Route::post('reviews', [ReviewController::class, 'store']); 
     Route::post('/buyer/review', [PaymentController::class, 'submitReview']);
 
