@@ -53,7 +53,7 @@ const SearchResults = () => {
             <div className="col-md-3 mb-4" key={product.id}>
               <div className="card h-100 text-center p-4">
                 <img
-                  src={`http://localhost:8000/${product.file_path}`} // Make sure 'file_path' contains the correct image URL
+                  src={`https://www.maizeai.me/${product.file_path}`} // Make sure 'file_path' contains the correct image URL
                   className="card-img-top"
                   alt={product.name}
                   height="250px"
