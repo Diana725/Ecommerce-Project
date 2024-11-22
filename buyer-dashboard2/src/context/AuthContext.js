@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, token) => {
     setIsAuthenticated(true);
     setUser(userData);
-    localStorage.setItem("authToken", token); // Store token in localStorage
+    localStorage.setItem("token", token); // Store token in localStorage
     localStorage.setItem("user", JSON.stringify(userData)); // Store user data
   };
 
@@ -20,14 +20,14 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem("authToken"); // Remove token from localStorage
+    localStorage.removeItem("token"); // Remove token from localStorage
     localStorage.removeItem("user"); // Remove user data
     navigate("/login"); // Redirect to login page
   };
 
   // Check if user is authenticated by verifying the token
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
     if (token && userData) {
