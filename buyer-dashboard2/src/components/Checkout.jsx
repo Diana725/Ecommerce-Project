@@ -54,7 +54,7 @@ const Checkout = () => {
     let errors = {};
 
     const paymentProof = paymentProofs[item.product.id];
-    const phoneNumber = phoneNumber[item.product.id] || "";
+    const currentPhoneNumber = phoneNumber[item.product.id] || "";
 
     if (!paymentProof) {
       errors.paymentProof = "Proof of payment is required";
@@ -73,9 +73,9 @@ const Checkout = () => {
     if (!selectedLocation[item.product.id]) {
       errors.deliveryLocation = "Delivery location is required";
     }
-    if (!phoneNumber) {
+    if (!currentPhoneNumber) {
       errors.phone_number = "Phone number is required";
-    } else if (!/^\d{10}$/.test(phoneNumber)) {
+    } else if (!/^\d{10}$/.test(currentPhoneNumber)) {
       errors.phone_number = "The phone number must be 10 digits";
     }
 
@@ -134,7 +134,7 @@ const Checkout = () => {
           delivery_location_id: selectedLocation[item.product.id] || null,
           total_price: totalPrice, // Send the totalPrice to the backend
           quantity: item.quantity, // Send the quantity
-          phone_number: item.phone_number, // Send the phone number
+          phone_number: phoneNumber[item.product.id] || "", // Send the phone number
         }),
       });
 
@@ -193,6 +193,24 @@ const Checkout = () => {
       [productId]: {
         ...prev[productId],
         proof: value.length === 10 ? "" : prev[productId]?.proof, // Clear if 10 characters
+      },
+    }));
+  };
+
+  const handlePhoneNumberChange = (productId, value) => {
+    setPhoneNumber((prev) => ({
+      ...prev,
+      [productId]: value,
+    }));
+
+    // Clear validation errors for phone number if input is valid
+    setValidationErrors((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        phone_number: /^\d{10}$/.test(value)
+          ? ""
+          : prev[productId]?.phone_number,
       },
     }));
   };
@@ -428,22 +446,25 @@ const Checkout = () => {
                     {validationErrors[item.product.id]?.proof}
                   </Form.Control.Feedback>
                 </Form.Group>
-                <input
-                  type="text"
-                  placeholder="07..."
-                  maxLength="10"
-                  value={phoneNumber[item.product.id] || ""}
-                  onChange={(e) =>
-                    setPhoneNumber((prev) => ({
-                      ...prev,
-                      [item.product.id]: e.target.value,
-                    }))
-                  }
-                  className="form-control"
-                />
-                <label>
-                  Enter phone number for farmer to contact you during delivery
-                </label>
+                <Form.Group controlId={`phoneNumber-${item.product.id}`}>
+                  <Form.Label>
+                    Enter Phone Number to Contact during Delivery
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter phone number"
+                    value={phoneNumber[item.product.id] || ""} // Set current input value
+                    isInvalid={
+                      !!validationErrors[item.product.id]?.phone_number
+                    } // Show error if exists
+                    onChange={(e) =>
+                      handlePhoneNumberChange(item.product.id, e.target.value)
+                    } // Handle input change
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors[item.product.id]?.phone_number}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
                 {/* Confirm Payment Button */}
                 <Button

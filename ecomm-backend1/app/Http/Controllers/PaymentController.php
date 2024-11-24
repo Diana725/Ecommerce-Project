@@ -17,7 +17,7 @@ class PaymentController extends Controller
             'product_id' => 'required|exists:products,id', // Validate product_id
             'payment_reference' => 'required|string',
              'phone_number' => 'required|numeric|size:10',
-        'quantity' => 'required|integer|min:1'
+        'quantity' => 'required|integer|min:1',
             'proof_of_payment' => 'nullable|string|size:10', // Ensure proof of payment is exactly 10 characters
             'delivery_zone_id' => 'required|exists:farmer_delivery_zones,id', // Validate delivery zone
             'total_price' => 'required|numeric', 
