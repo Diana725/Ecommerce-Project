@@ -123,7 +123,7 @@ const FarmerPayments = () => {
 
   return (
     <div className="container">
-      <h2 className="my-4">Payments</h2>
+      <h2 className="my-4">Payments and Delivery Details</h2>
       <div className="row">
         {payments.map((payment) => (
           <div className="col-md-4 mb-4" key={payment.id}>
@@ -136,8 +136,8 @@ const FarmerPayments = () => {
               <Card.Body>
                 <Card.Title>{payment.product.name} Maize</Card.Title>
                 <Card.Text>
-                  <strong>Price:</strong> ${payment.total_price} <br />
-                  <strong>Quantity:</strong> {payment.quantity} <br />
+                  <strong>Price:</strong> Ksh{payment.total_price} <br />
+                  <strong>Quantity:</strong> {payment.quantity} Kgs <br />
                   <strong>Buyer Phone:</strong> {payment.phone_number} <br />
                   <strong>Delivery Zone:</strong>{" "}
                   {payment.delivery_zone.zone_name} <br />
@@ -155,6 +155,7 @@ const FarmerPayments = () => {
                     Confirm Payment
                   </Button>
                 )}
+                <br />
                 <Button
                   variant="info"
                   onClick={() => handleShowModal(payment)}

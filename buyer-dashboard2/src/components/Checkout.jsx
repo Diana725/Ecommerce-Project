@@ -133,7 +133,7 @@ const Checkout = () => {
           delivery_zone_id: selectedZone[item.product.id] || null,
           delivery_location_id: selectedLocation[item.product.id] || null,
           total_price: totalPrice, // Send the totalPrice to the backend
-          quantity: item.quantity, // Send the quantity
+          quantity: item.productDetails.quantity * item.quantity, // Send the quantity
           phone_number: phoneNumber[item.product.id] || "", // Send the phone number
         }),
       });

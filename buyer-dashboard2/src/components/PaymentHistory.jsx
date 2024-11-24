@@ -173,6 +173,14 @@ const PaymentHistory = () => {
                       ? payment.delivery_location.location_name
                       : "N/A"}
                   </Card.Text>
+                  <Card.Text>
+                    <strong>Delivery Service:</strong>{" "}
+                    {payment.delivery_service}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Delivery Tracking Number:</strong>{" "}
+                    {payment.tracking_number}
+                  </Card.Text>
                   <Button
                     variant="success"
                     onClick={() => markAsDelivered(payment.id)}
@@ -185,6 +193,7 @@ const PaymentHistory = () => {
                       ? "Marked As Delivered"
                       : "Mark as Delivered"}
                   </Button>{" "}
+                  <br />
                   {payment.delivery_status === "Delivered" &&
                     payment.review_submitted === 0 && (
                       <Button
