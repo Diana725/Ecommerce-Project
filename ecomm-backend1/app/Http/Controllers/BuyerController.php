@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use App\Mail\VerifyEmail;
 use App\Mail\PasswordResetMail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 
 
 class BuyerController extends Controller
@@ -77,7 +78,61 @@ public function verifyEmail($token)
     $buyer->email_verification_token = null;
     $buyer->save();
 
-    return  redirect('https://www.buyer.maizeai.me/login')->with('message', 'Email verified successfully! You can now log in.');
+    return response()->json(['message' => 'Email verified successfully! You can now log in.']);
+}
+
+public function resendVerificationEmail(Request $request)
+{
+    // Validate the email
+    $request->validate(['email' => 'required|email']);
+
+    // Find the buyer by email
+    $buyer = Buyer::where('email', $request->email)->first();
+
+    if (!$buyer) {
+        return response()->json(['message' => 'No account found with this email'], 404);
+    }
+
+    // Check if the buyer is already verified
+    if ($buyer->is_verified) {
+        return response()->json(['message' => 'Email is already verified'], 400);
+    }
+
+    // Generate a new verification token
+    $buyer->email_verification_token = Str::random(40);
+    $buyer->save();
+
+    // Send the verification email
+    Mail::to($buyer->email)->send(new VerifyEmail($buyer->email_verification_token));
+
+    return response()->json(['message' => 'Verification email resent successfully']);
+}
+
+public function resendPasswordResetEmail(Request $request)
+{
+    // Validate the email
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['message' => 'Invalid email format'], 400);
+    }
+
+    // Check if the user exists
+    $buyer = Buyer::where('email', $request->email)->first();
+
+    if (!$buyer) {
+        return response()->json(['message' => 'No account found with this email'], 404);
+    }
+
+    // Generate a password reset token
+    $token = Password::broker()->createToken($buyer);
+
+    // Send the password reset email
+    Mail::to($buyer->email)->send(new PasswordResetMail($buyer->email, $token));
+
+    return response()->json(['message' => 'Password reset email resent successfully'], 200);
 }
 
 

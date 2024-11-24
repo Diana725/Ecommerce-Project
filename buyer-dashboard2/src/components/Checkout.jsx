@@ -22,6 +22,7 @@ const Checkout = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [paymentId, setPaymentId] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState({});
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -53,6 +54,7 @@ const Checkout = () => {
     let errors = {};
 
     const paymentProof = paymentProofs[item.product.id];
+    const phoneNumber = phoneNumber[item.product.id] || "";
 
     if (!paymentProof) {
       errors.paymentProof = "Proof of payment is required";
@@ -70,6 +72,11 @@ const Checkout = () => {
 
     if (!selectedLocation[item.product.id]) {
       errors.deliveryLocation = "Delivery location is required";
+    }
+    if (!phoneNumber) {
+      errors.phone_number = "Phone number is required";
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
+      errors.phone_number = "The phone number must be 10 digits";
     }
 
     return errors;
@@ -126,6 +133,8 @@ const Checkout = () => {
           delivery_zone_id: selectedZone[item.product.id] || null,
           delivery_location_id: selectedLocation[item.product.id] || null,
           total_price: totalPrice, // Send the totalPrice to the backend
+          quantity: item.quantity, // Send the quantity
+          phone_number: item.phone_number, // Send the phone number
         }),
       });
 
@@ -317,6 +326,9 @@ const Checkout = () => {
                 </div>
 
                 <p>Price: Ksh {item.productDetails.price * item.quantity}</p>
+                <p>
+                  Amount: {item.productDetails.quantity * item.quantity} Kgs
+                </p>
                 <p>Quantity: {item.quantity}</p>
 
                 {/* Delivery Zone Dropdown */}
@@ -416,6 +428,22 @@ const Checkout = () => {
                     {validationErrors[item.product.id]?.proof}
                   </Form.Control.Feedback>
                 </Form.Group>
+                <input
+                  type="text"
+                  placeholder="07..."
+                  maxLength="10"
+                  value={phoneNumber[item.product.id] || ""}
+                  onChange={(e) =>
+                    setPhoneNumber((prev) => ({
+                      ...prev,
+                      [item.product.id]: e.target.value,
+                    }))
+                  }
+                  className="form-control"
+                />
+                <label>
+                  Enter phone number for farmer to contact you during delivery
+                </label>
 
                 {/* Confirm Payment Button */}
                 <Button

@@ -53,6 +53,15 @@ Route::post('/farmer/password/reset', [UserController::class, 'resetPasswordFarm
 
 Route::get('buyer-search/{key}', [BuyerProductController::class, 'buyerSearch']);
 
+//resend verification routes 
+Route::post('/email/verification/resend', [BuyerController::class, 'resendVerificationEmail']);
+Route::post('/farmer/email/verification/resend', [UserController::class, 'resendFarmerVerificationEmail']);
+
+//resend password reset routes
+Route::post('/password/reset/resend', [BuyerController::class, 'resendPasswordResetEmail']);
+Route::post('/farmer/password-reset/resend', [UserController::class, 'resendFarmerPasswordResetToken']);
+
+
 
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {

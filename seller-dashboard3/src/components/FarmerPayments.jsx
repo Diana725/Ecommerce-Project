@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form } from "react-bootstrap"; // Import Modal and Form
+import { Card, Button, Modal, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const FarmerPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false); // State for the modal
-  const [selectedPayment, setSelectedPayment] = useState(null); // State for the selected payment
-  const [trackingNumber, setTrackingNumber] = useState(""); // State for tracking number
-  const [deliveryService, setDeliveryService] = useState(""); // State for delivery service
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [deliveryService, setDeliveryService] = useState("");
 
   const fetchPayments = async () => {
     try {
@@ -36,9 +36,9 @@ const FarmerPayments = () => {
   };
 
   useEffect(() => {
-    fetchPayments(); // Initial fetch
-    const intervalId = setInterval(fetchPayments, 15000); // Fetch payments every 15 seconds
-    return () => clearInterval(intervalId); // Clear interval on component unmount
+    fetchPayments();
+    const intervalId = setInterval(fetchPayments, 15000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const confirmPayment = async (paymentId) => {
@@ -69,14 +69,14 @@ const FarmerPayments = () => {
   };
 
   const handleShowModal = (payment) => {
-    setSelectedPayment(payment); // Set the selected payment for delivery details
+    setSelectedPayment(payment);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setTrackingNumber(""); // Reset tracking number
-    setDeliveryService(""); // Reset delivery service
+    setTrackingNumber("");
+    setDeliveryService("");
   };
 
   const handleSubmitDeliveryDetails = async (event) => {
@@ -104,8 +104,8 @@ const FarmerPayments = () => {
         );
       }
 
-      fetchPayments(); // Refresh payments
-      handleCloseModal(); // Close the modal
+      fetchPayments();
+      handleCloseModal();
       alert("Delivery status updated successfully!");
     } catch (err) {
       console.error("Update Error:", err);
@@ -124,67 +124,61 @@ const FarmerPayments = () => {
   return (
     <div className="container">
       <h2 className="my-4">Payments</h2>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Status(Confirm Buyer's Payment)</th>
-            <th>Amount Paid</th>
-            <th>Proof of Payment</th>
-            <th>Product Name</th>
-            <th>Delivery Zone</th>
-            <th>Delivery Location</th>
-            <th>Action</th>
-            <th>Tracking Number</th> {/* New Column */}
-            <th>Delivery Service</th> {/* New Column */}
-            <th>Delivery Status</th> {/* New Column */}
-          </tr>
-        </thead>
-        <tbody>
-          {payments.map((payment) => (
-            <tr key={payment.id}>
-              <td>
-                {payment.status}
+      <div className="row">
+        {payments.map((payment) => (
+          <div className="col-md-4 mb-4" key={payment.id}>
+            <Card>
+              <Card.Img
+                variant="top"
+                src={`https://www.maizeai.me/${payment.product.file_path}`} // Replace with actual image URL
+                alt={payment.product.name}
+              />
+              <Card.Body>
+                <Card.Title>{payment.product.name} Maize</Card.Title>
+                <Card.Text>
+                  <strong>Price:</strong> ${payment.total_price} <br />
+                  <strong>Quantity:</strong> {payment.quantity} <br />
+                  <strong>Buyer Phone:</strong> {payment.phone_number} <br />
+                  <strong>Delivery Zone:</strong>{" "}
+                  {payment.delivery_zone.zone_name} <br />
+                  <strong>Delivery Location:</strong>{" "}
+                  {payment.delivery_location.location_name} <br />
+                  <strong>Proof of Payment:</strong>{" "}
+                  {payment.proof_of_payment || "No proof uploaded"}
+                </Card.Text>
                 {payment.status === "Payment Pending" && (
                   <Button
-                    className="btn-success ms-2"
+                    variant="success"
+                    className="me-2"
                     onClick={() => confirmPayment(payment.id)}
                   >
                     Confirm Payment
                   </Button>
                 )}
-              </td>
-              <td>{payment.total_price}</td>
-              <td>{payment.proof_of_payment || "No proof uploaded"}</td>
-              <td>{payment.product.name} Maize</td>
-              <td>{payment.delivery_zone.zone_name}</td>
-              <td>{payment.delivery_location.location_name}</td>
-              <td>
                 <Button
-                  className="btn-info"
+                  variant="info"
                   onClick={() => handleShowModal(payment)}
                   disabled={
                     payment.status !== "Payment Confirmed" ||
                     payment.delivery_status === "Shipped" ||
                     payment.delivery_status === "Delivered"
-                  } // Disable button until payment is confirmed
+                  }
                 >
                   Update Delivery Details
                 </Button>
-              </td>
-              <td>{payment.tracking_number || "N/A"}</td>{" "}
-              {/* Display Tracking Number */}
-              <td>{payment.delivery_service || "N/A"}</td>{" "}
-              {/* Display Delivery Service */}
-              <td>{payment.delivery_status || "Not Shipped"}</td>{" "}
-              {/* Display Delivery Status */}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <br />
-      <hr />
+                <hr />
+                <strong>Tracking Number:</strong>{" "}
+                {payment.tracking_number || "N/A"} <br />
+                <strong>Delivery Service:</strong>{" "}
+                {payment.delivery_service || "N/A"} <br />
+                <strong>Delivery Status:</strong>{" "}
+                {payment.delivery_status || "Not Shipped"}
+              </Card.Body>
+            </Card>
+          </div>
+        ))}
+      </div>
 
-      {/* Modal for Delivery Details */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Update Delivery Details</Modal.Title>

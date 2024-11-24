@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -8,48 +8,16 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false); // State for login loading
-  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false); // State for forgot password loading
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false); // State for resend verification email
+  const [isEmailVerified, setIsEmailVerified] = useState(true); // Email verification status
   const navigate = useNavigate();
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setForgotPasswordLoading(true); // Show spinner for forgot password
-
-    try {
-      const response = await fetch(
-        "https://www.maizeai.me/api/buyer/password/reset-request",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ email }), // Send the email only
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || "Failed to send reset link.");
-        setForgotPasswordLoading(false); // Hide spinner for forgot password
-        return;
-      }
-
-      const result = await response.json();
-      setMessage("A password reset link has been sent to your email address.");
-      setErrorMessage("");
-    } catch (error) {
-      console.error("Error sending reset link", error);
-      setErrorMessage("Failed to send reset link. Please try again.");
-    } finally {
-      setForgotPasswordLoading(false); // Hide spinner after forgot password request completion
-    }
-  };
-
+  // Handle login request
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoginLoading(true); // Show spinner for login
+    setLoginLoading(true);
 
     const item = { email, password };
 
@@ -65,28 +33,101 @@ const Login = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error during login:", errorData);
         setErrorMessage(errorData.message || "Failed to login.");
-        setLoginLoading(false); // Hide spinner for login
+        setLoginLoading(false);
         return;
       }
 
       const result = await response.json();
-      if (result.is_verified == 1) {
+
+      if (result.is_verified == 0) {
+        // Email is not verified
+        setIsEmailVerified(false);
         setErrorMessage("Your email is not verified. Please check your inbox.");
-        setLoginLoading(false); // Hide spinner for login
+        setLoginLoading(false);
         return;
       }
 
+      // Successful login
       localStorage.setItem("user-info", JSON.stringify(result));
       localStorage.setItem("token", result.token);
       setErrorMessage("");
-      navigate("/");
+      navigate("/"); // Redirect to home page after successful login
     } catch (error) {
       console.error("Error during login:", error);
       setErrorMessage("Failed to login. Please try again.");
     } finally {
-      setLoginLoading(false); // Hide spinner after login request completion
+      setLoginLoading(false);
+    }
+  };
+
+  // Handle resend verification email
+  const handleResendVerificationEmail = async () => {
+    setResendLoading(true);
+    try {
+      const response = await fetch(
+        "https://www.maizeai.me/api/email/verification/resend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(
+          errorData.message || "Failed to resend verification email."
+        );
+        setResendLoading(false);
+        return;
+      }
+
+      setMessage("A new verification email has been sent.");
+      setErrorMessage("");
+      setResendLoading(false);
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      setErrorMessage("Failed to resend verification email. Please try again.");
+      setResendLoading(false);
+    }
+  };
+
+  // Handle forgot password request
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotPasswordLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://www.maizeai.me/api/buyer/password/reset-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Failed to send reset link.");
+        setForgotPasswordLoading(false);
+        return;
+      }
+
+      setMessage("A password reset link has been sent to your email address.");
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error sending reset link", error);
+      setErrorMessage("Failed to send reset link. Please try again.");
+    } finally {
+      setForgotPasswordLoading(false);
     }
   };
 
@@ -142,11 +183,23 @@ const Login = () => {
           <button
             type="submit"
             className="btn btn-primary mt-4"
-            disabled={loginLoading} // Disable button while login is loading
+            disabled={loginLoading}
           >
             {loginLoading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        {isEmailVerified === false && (
+          <div className="mt-3">
+            <button
+              className="btn btn-link"
+              onClick={handleResendVerificationEmail}
+              disabled={resendLoading}
+            >
+              {resendLoading ? "Sending..." : "Resend verification email"}
+            </button>
+          </div>
+        )}
 
         <div className="mt-3">
           <p>
@@ -161,7 +214,7 @@ const Login = () => {
               href="#"
               className="btn-link"
               onClick={handleForgotPassword}
-              disabled={forgotPasswordLoading} // Disable link while forgot password is loading
+              disabled={forgotPasswordLoading}
             >
               {forgotPasswordLoading ? "Processing..." : "Click here"}
             </a>

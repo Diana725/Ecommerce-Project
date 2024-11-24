@@ -58,6 +58,8 @@ const PaymentDetails = () => {
                 Payment Status: {paymentDetails.status} Confirmation From Farmer
               </h4>
               <p>Total Price Paid: Ksh {paymentDetails.total_price}</p>
+              <p>Total Product Amount: {paymentDetails.quantity} Kgs</p>
+              <p>Phone Number: {paymentDetails.phone_number} Kgs</p>
               <p>Payment Code: {paymentDetails.proof_of_payment}</p>
               <p>Product Name: {paymentDetails.product_name} Maize</p>
 

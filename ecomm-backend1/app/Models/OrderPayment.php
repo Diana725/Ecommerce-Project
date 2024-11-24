@@ -25,6 +25,8 @@ class OrderPayment extends Model
         'delivery_zone_id',
         'delivery_location_id',
         'total_price',
+        'phone_number',
+        'quantity',
     ];
 
     public function buyer()

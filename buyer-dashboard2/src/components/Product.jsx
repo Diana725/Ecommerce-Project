@@ -36,7 +36,13 @@ const Product = () => {
       navigate("/login");
     }
   };
-
+  const goToCart = () => {
+    if (isAuthenticated()) {
+      navigate("/cart");
+    } else {
+      navigate("/login");
+    }
+  };
   useEffect(() => {
     if (!id) {
       console.error("Product ID is not defined.");
@@ -115,9 +121,9 @@ const Product = () => {
           >
             Add to Cart
           </button>
-          <NavLink to="/cart" className="btn btn-dark ms-2 px-3 py-2">
+          <button className="btn btn-dark ms-2 px-3 py-2" onClick={goToCart}>
             Go to Cart
-          </NavLink>
+          </button>
         </div>
       </>
     );

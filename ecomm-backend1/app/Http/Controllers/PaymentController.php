@@ -16,6 +16,8 @@ class PaymentController extends Controller
             'farmer_id' => 'required|exists:users,id',
             'product_id' => 'required|exists:products,id', // Validate product_id
             'payment_reference' => 'required|string',
+             'phone_number' => 'required|numeric|size:10',
+        'quantity' => 'required|integer|min:1'
             'proof_of_payment' => 'nullable|string|size:10', // Ensure proof of payment is exactly 10 characters
             'delivery_zone_id' => 'required|exists:farmer_delivery_zones,id', // Validate delivery zone
             'total_price' => 'required|numeric', 
@@ -33,6 +35,8 @@ class PaymentController extends Controller
                 'product_id' => $request->product_id,
                 'payment_reference' => $request->payment_reference,
                 'proof_of_payment' => $request->proof_of_payment,
+                'phone_number' => $request->phone_number, // Save phone number
+            'quantity' => $request->quantity,
                 'status' => 'Payment Pending',
                 'delivery_zone_id' => $request->delivery_zone_id, // Save delivery zone ID
                 'delivery_location_id' => $request->delivery_location_id, // Save delivery location ID

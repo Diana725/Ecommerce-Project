@@ -65,7 +65,67 @@ public function verifyEmail($token)
     // Return a success response
     return response()->json(['message' => 'Email verified successfully! You can now log in.']);
 }
+public function resendFarmerVerificationEmail(Request $request)
+{
+    // Validate the email
+    $request->validate([
+        'email' => 'required|email',
+    ]);
 
+    // Find the farmer by email
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'No account found with this email'], 404);
+    }
+
+    // Check if the farmer is already verified
+    if ($user->is_verified) {
+        return response()->json(['message' => 'Email is already verified'], 400);
+    }
+
+    // Generate a new verification token
+    $user->email_verification_token = Str::random(40); // Generate a random token
+    $user->save();
+
+    // Send the verification email
+    Mail::to($user->email)->send(new FarmerVerificationMail($user->email_verification_token));
+
+    return response()->json(['message' => 'Verification email resent successfully. Please check your inbox.']);
+}
+
+public function resendFarmerPasswordResetToken(Request $request)
+{
+    // Validate the email
+    $request->validate([
+        'email' => 'required|email',
+    ]);
+
+    // Find the farmer (user) by email
+    $farmer = User::where('email', $request->email)->first();
+
+    if (!$farmer) {
+        return response()->json(['message' => 'No account found with this email'], 404);
+    }
+
+    // Generate a new password reset token
+    $token = Str::random(60); // Generate a secure token
+
+    // Store the token in your password_resets table
+    \DB::table('password_resets')->updateOrInsert(
+        ['email' => $farmer->email], // Match by email
+        [
+            'email' => $farmer->email,
+            'token' => bcrypt($token), // Store the token hashed
+            'created_at' => now(),
+        ]
+    );
+
+    // Send the reset email
+    Mail::to($farmer->email)->send(new PasswordResetMailFarmer($farmer->email, $token));
+
+    return response()->json(['message' => 'Password reset email resent successfully. Please check your inbox.']);
+}
 
     // Registration function
     public function register(Request $request)

@@ -10,6 +10,7 @@ const ResetPassword = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [token, setToken] = useState("");
   const [passwordError, setPasswordError] = useState(""); // Track password validation errors
+  const [showResendButton, setShowResendButton] = useState(false); // Flag to show resend button
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,6 +52,42 @@ const ResetPassword = () => {
     return ""; // No error
   };
 
+  // Function to resend password reset email
+  const handleResendResetToken = async () => {
+    try {
+      const response = await fetch(
+        "https://www.maizeai.me/api/buyer/password/reset/resend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            email: email, // Use email state dynamically
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Failed to resend reset email.");
+        return;
+      }
+
+      const result = await response.json();
+      setSuccessMessage(
+        result.message || "Password reset email sent. Please check your inbox."
+      );
+      setShowResendButton(false); // Hide resend button after success
+    } catch (error) {
+      console.error("Error during password reset email resend:", error);
+      setErrorMessage(
+        "Failed to resend password reset email. Please try again."
+      );
+    }
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
@@ -87,7 +124,13 @@ const ResetPassword = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || "Failed to reset password.");
+        // Check for invalid or expired token error
+        if (errorData.message === "The reset token is invalid or expired.") {
+          setErrorMessage(errorData.message);
+          setShowResendButton(true); // Show the resend button
+        } else {
+          setErrorMessage(errorData.message || "Failed to reset password.");
+        }
         return;
       }
 
@@ -141,7 +184,7 @@ const ResetPassword = () => {
               required
             />
             <small style={{ fontSize: 13 }}>
-              Password must be atleast 8 characters long and include at least
+              Password must be at least 8 characters long and include at least
               one uppercase letter, one lowercase letter, one number, and one
               special character(@$!%*#?&).
             </small>
@@ -162,6 +205,16 @@ const ResetPassword = () => {
             Reset Password
           </button>
         </form>
+        {showResendButton && (
+          <div className="mt-3">
+            <button
+              className="btn btn-warning"
+              onClick={handleResendResetToken}
+            >
+              Resend Reset Token
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

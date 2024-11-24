@@ -10,6 +10,8 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState(""); // Password validation error state
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [isResending, setIsResending] = useState(false); // Loading state for resend button
+  const [resendSuccess, setResendSuccess] = useState(""); // Success message for resend
   const navigate = useNavigate();
 
   // Password validation regex for uppercase, lowercase, number, and special character
@@ -71,6 +73,41 @@ const Register = () => {
       setIsLoading(false);
       console.error("Error during registration:", error);
       alert("Failed to register. Please try again.");
+    }
+  };
+
+  // Function to handle resend verification email request
+  const handleResendVerification = async () => {
+    setIsResending(true); // Show loading indicator for resend
+    setResendSuccess(""); // Reset success message
+
+    try {
+      let response = await fetch(
+        "https://www.maizeai.me/api/email/verification/resend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      setIsResending(false); // Stop loading indicator for resend
+
+      if (!response.ok) {
+        let errorData = await response.json();
+        console.error("Resend verification failed:", errorData);
+        alert("Failed to resend verification email. Please try again.");
+        return;
+      }
+
+      setResendSuccess("Verification email sent! Please check your inbox.");
+    } catch (error) {
+      setIsResending(false);
+      console.error("Error during resend verification:", error);
+      alert("Failed to resend verification email. Please try again.");
     }
   };
 
@@ -158,6 +195,24 @@ const Register = () => {
         <p className="mt-3">
           Already have an account? <NavLink to="/login">Login here</NavLink>
         </p>
+
+        {/* Resend Verification Email Button */}
+        <div className="mt-3">
+          {resendSuccess && (
+            <div className="alert alert-success">{resendSuccess}</div>
+          )}
+          <button
+            className="btn btn-secondary"
+            onClick={handleResendVerification}
+            disabled={isResending}
+          >
+            {isResending ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              "Resend Verification Email"
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Success Modal */}
@@ -169,11 +224,7 @@ const Register = () => {
           Registration successful! Please check your email to verify your
           account.
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleModalClose}>
-            Go to Login
-          </Button>
-        </Modal.Footer>
+        <Modal.Footer></Modal.Footer>
       </Modal>
     </div>
   );

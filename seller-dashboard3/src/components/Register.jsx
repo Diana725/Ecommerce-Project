@@ -8,11 +8,31 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState(""); // Add state for phone number
   const [message, setMessage] = useState(""); // State for the success or error message
+  const [loading, setLoading] = useState(false); // State for loading spinner
+  const [passwordError, setPasswordError] = useState(""); // State for password validation errors
+  const [resendMessage, setResendMessage] = useState(""); // State for the resend verification email message
   const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
 
+    // Validate password
+    if (!validatePassword(password)) {
+      setPasswordError(
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*#?&)."
+      );
+      return;
+    } else {
+      setPasswordError("");
+    }
+
+    setLoading(true); // Show loading spinner
     let item = { name, email, password, phone }; // Include phone in the data sent to the server
 
     try {
@@ -28,7 +48,8 @@ const Register = () => {
       if (!response.ok) {
         let errorData = await response.json();
         console.error("Validation error:", errorData);
-        // Check if the error indicates user already exists
+        setLoading(false); // Hide loading spinner
+
         if (errorData.message === "User already registered") {
           alert("User already registered. Redirecting to login page...");
           navigate("/login"); // Redirect to login page
@@ -39,9 +60,10 @@ const Register = () => {
       }
 
       let result = await response.json();
+      setLoading(false); // Hide loading spinner
+
       if (result.status === "success") {
         setMessage("Registration successful! Please verify your email.");
-        // Optionally, you can redirect the user to a different page
         setTimeout(() => navigate("/login"), 5000); // Redirect to login after 5 seconds
       } else {
         setMessage(
@@ -50,7 +72,45 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Error during registration:", error);
+      setLoading(false); // Hide loading spinner
       alert("Failed to register. Please try again.");
+    }
+  };
+
+  // Function to resend the verification email
+  const handleResendVerification = async () => {
+    setResendMessage(""); // Clear previous messages
+
+    try {
+      const response = await fetch(
+        "https://www.maizeai.me/api/farmer/email/verification/resend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email }), // Send the email that needs to be verified
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setResendMessage(
+          errorData.message || "Failed to resend verification email."
+        );
+        return;
+      }
+
+      const result = await response.json();
+      setResendMessage(
+        result.message || "Verification email resent successfully."
+      );
+    } catch (error) {
+      console.error("Error during email resend:", error);
+      setResendMessage(
+        "Failed to resend verification email. Please try again."
+      );
     }
   };
 
@@ -94,6 +154,14 @@ const Register = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <small style={{ fontSize: 13 }} className="text-muted">
+              Password must be at least 8 characters long and include at least
+              one uppercase letter, one lowercase letter, one number, and one
+              special character (@$!%*#?&).
+            </small>
+            {passwordError && (
+              <div className="text-danger mt-2">{passwordError}</div>
+            )}
           </div>
           {/* Add phone number input field */}
           <div className="form-group mt-3">
@@ -108,14 +176,47 @@ const Register = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary mt-4">
-            Sign Up
+          <button
+            type="submit"
+            className="btn btn-primary mt-4"
+            disabled={loading} // Disable button while loading
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>{" "}
+                Signing Up...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
 
         {message && (
           <div className="alert alert-success mt-3" role="alert">
             {message}
+          </div>
+        )}
+
+        {/* Resend verification email section */}
+        {message && !resendMessage && (
+          <div className="mt-3">
+            <button
+              onClick={handleResendVerification}
+              className="btn btn-warning"
+            >
+              Resend Verification Email
+            </button>
+          </div>
+        )}
+
+        {resendMessage && (
+          <div className="alert alert-info mt-3" role="alert">
+            {resendMessage}
           </div>
         )}
 

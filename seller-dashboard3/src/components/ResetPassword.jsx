@@ -10,6 +10,7 @@ const ResetPassword = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [token, setToken] = useState("");
   const [passwordError, setPasswordError] = useState(""); // Track password validation errors
+  const [showResendButton, setShowResendButton] = useState(false); // To control display of resend button
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -87,7 +88,13 @@ const ResetPassword = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || "Failed to reset password.");
+        // If the token is invalid or expired, show the resend button
+        if (errorData.message === "The reset token is invalid or expired.") {
+          setErrorMessage(errorData.message);
+          setShowResendButton(true); // Show resend button
+        } else {
+          setErrorMessage(errorData.message || "Failed to reset password.");
+        }
         return;
       }
 
@@ -103,6 +110,39 @@ const ResetPassword = () => {
     } catch (error) {
       console.error("Error during password reset:", error);
       setErrorMessage("Failed to reset password. Please try again.");
+    }
+  };
+
+  const handleResendToken = async () => {
+    try {
+      const response = await fetch(
+        "https://www.maizeai.me/api/farmer/password-reset/resend",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email: email }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Failed to resend reset token.");
+        return;
+      }
+
+      const result = await response.json();
+      setSuccessMessage(
+        result.message || "Password reset token resent successfully."
+      );
+      setShowResendButton(false); // Hide the resend button after successful request
+    } catch (error) {
+      console.error("Error during token resend:", error);
+      setErrorMessage(
+        "Failed to resend password reset token. Please try again."
+      );
     }
   };
 
@@ -162,6 +202,14 @@ const ResetPassword = () => {
             Reset Password
           </button>
         </form>
+
+        {showResendButton && (
+          <div className="mt-3">
+            <button className="btn btn-warning" onClick={handleResendToken}>
+              Resend Password Reset Token
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

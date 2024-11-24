@@ -37,8 +37,13 @@ const Cart = () => {
   };
 
   // Calculate total price
-  const total = cartItems.reduce((acc, item) => {
+  const totalPrice = cartItems.reduce((acc, item) => {
     return acc + item.quantity * parseFloat(item.product?.price || 0);
+  }, 0);
+
+  // Calculate total amount in Kgs
+  const totalAmountKgs = cartItems.reduce((acc, item) => {
+    return acc + item.quantity * parseFloat(item.product?.quantity || 0); // Fetch the 'quantity' column from the product table
   }, 0);
 
   return (
@@ -52,8 +57,10 @@ const Cart = () => {
                 <th>Image</th>
                 <th>Product Name</th>
                 <th>Price</th>
+                <th>Amount (Kgs)</th>
                 <th>Quantity</th>
                 <th>Total</th>
+                <th>Total Amount (Kgs)</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -76,6 +83,7 @@ const Cart = () => {
                     Maize
                   </td>
                   <td>{item.product?.price}</td>
+                  <td>{item.product?.quantity || 0} Kgs</td>
                   <td>
                     <Button
                       variant="outline-primary"
@@ -109,6 +117,12 @@ const Cart = () => {
                     ).toFixed(2)}
                   </td>
                   <td>
+                    {(
+                      item.quantity * parseFloat(item.product?.quantity || 0)
+                    ).toFixed(2)}{" "}
+                    Kgs
+                  </td>
+                  <td>
                     <Button
                       variant="danger"
                       onClick={() =>
@@ -123,9 +137,10 @@ const Cart = () => {
             </tbody>
           </Table>
 
-          {/* Total price display */}
+          {/* Total price and amount display */}
           <div className="text-right mb-4">
-            <h4>Total Price: Ksh{total.toFixed(2)}</h4>
+            <h4>Total Price: Ksh {totalPrice.toFixed(2)}</h4>
+            <h4>Total Amount: {totalAmountKgs.toFixed(2)} Kgs</h4>
           </div>
 
           {/* Checkout Button */}
@@ -143,142 +158,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
-// import React, { useEffect, useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   removeCart,
-//   incrementQuantity,
-//   decrementQuantity,
-//   fetchCartItems, // Import the fetchCartItems action
-// } from "../redux/action";
-// import { selectCartItems, selectCartTotal } from "../redux/selectors"; // Use the memoized selectors
-
-// const Cart = () => {
-//   const [loading, setLoading] = useState(true); // State for loading
-
-//   // Use memoized selectors to get cart items and total price
-//   const cart = useSelector(selectCartItems);
-//   const totalPrice = useSelector(selectCartTotal);
-
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-
-//     if (!token) {
-//       navigate("/login"); // Redirect to login if no token
-//       return;
-//     }
-
-//     // Fetch cart items when component mounts
-//     dispatch(fetchCartItems())
-//       .then(() => setLoading(false)) // Set loading to false after fetching
-//       .catch(() => setLoading(false)); // Set loading to false in case of an error
-//   }, [dispatch, navigate]);
-
-//   // Handle removing an item from the cart
-//   const handleRemove = (product) => {
-//     dispatch(removeCart(product));
-//   };
-
-//   // Handle incrementing the quantity of an item
-//   const handleIncrement = (product) => {
-//     dispatch(incrementQuantity(product));
-//   };
-
-//   // Handle decrementing the quantity of an item
-//   const handleDecrement = (product) => {
-//     dispatch(decrementQuantity(product));
-//   };
-
-//   // Handle proceeding to checkout
-//   const handleProceedToCheckout = () => {
-//     const token = localStorage.getItem("token");
-//     if (!token) {
-//       navigate("/login");
-//       return;
-//     }
-//     navigate("/checkout");
-//   };
-
-//   // Render cart items
-//   const cartItems = cart.map((product) => (
-//     <div className="row mb-4" key={product.id}>
-//       <div className="col-md-4">
-//         <img
-//           src={"http://localhost:8000/" + product.file_path}
-//           alt={product.name}
-//           height="200px"
-//           width="180px"
-//         />
-//       </div>
-//       <div className="col-md-4">
-//         <h3>{product.name}</h3>
-//         <p className="lead fw-bold">
-//           {product.quantity} x ksh{product.price} = ksh
-//           {product.quantity * product.price}
-//         </p>
-//         <div>
-//           <button
-//             className="btn btn-outline-dark me-2"
-//             onClick={() => handleDecrement(product)}
-//           >
-//             -
-//           </button>
-//           <button
-//             className="btn btn-outline-dark"
-//             onClick={() => handleIncrement(product)}
-//           >
-//             +
-//           </button>
-//         </div>
-//       </div>
-//       <div className="col-md-4">
-//         <button
-//           className="btn btn-outline-dark"
-//           onClick={() => handleRemove(product)}
-//         >
-//           Remove
-//         </button>
-//       </div>
-//     </div>
-//   ));
-
-//   return (
-//     <div className="container py-5">
-//       {loading ? (
-//         <p>Loading cart items...</p>
-//       ) : (
-//         <div className="row">
-//           <div className="col-md-12">
-//             {cart.length === 0 ? (
-//               <h2>Your Cart is Empty</h2>
-//             ) : (
-//               <>
-//                 {/* Display cart items */}
-//                 {cartItems}
-//                 <div className="row">
-//                   <div className="col-md-12 text-end">
-//                     <h3>Total: ksh{totalPrice}</h3>
-//                     <button
-//                       onClick={handleProceedToCheckout}
-//                       className="btn btn-dark mb-5"
-//                     >
-//                       Proceed to Checkout
-//                     </button>
-//                   </div>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       <hr />
-//     </div>
-//   );
-// };
-
-// export default Cart;
