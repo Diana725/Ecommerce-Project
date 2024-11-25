@@ -13,8 +13,8 @@ const Product = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deliveryZones, setDeliveryZones] = useState([]);
-  const [deliveryLocations, setDeliveryLocations] = useState({});
+  const [zones, setZones] = useState({});
+  const [locations, setLocations] = useState({});
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -44,11 +44,10 @@ const Product = () => {
     }
   };
 
-  // Fetch Product Details
+  // Fetch product details
   useEffect(() => {
-    const getProduct = async () => {
+    const fetchProduct = async () => {
       setLoading(true);
-      setError(null);
       try {
         const response = await fetch(
           `https://www.maizeai.me/api/buyer/products/${id}`
@@ -64,45 +63,51 @@ const Product = () => {
       }
     };
 
-    getProduct();
+    fetchProduct();
   }, [id]);
 
-  // Fetch Delivery Zones
+  // Fetch delivery zones for a farmer
   useEffect(() => {
-    if (product && product.farmer_id) {
-      const fetchDeliveryZones = async () => {
-        try {
-          const response = await fetch(
-            `https://www.maizeai.me/api/buyers/farmers/${product.user_id}/delivery-zones`
-          );
-          if (!response.ok) throw new Error("Failed to fetch delivery zones");
-
-          const zones = await response.json();
-          setDeliveryZones(zones);
-
-          // Fetch delivery locations for each zone
-          const locationsData = {};
-          for (const zone of zones) {
-            const locationsResponse = await fetch(
-              `https://www.maizeai.me/api/buyers/delivery-zones/${zone.id}/locations`
-            );
-            if (locationsResponse.ok) {
-              const locations = await locationsResponse.json();
-              locationsData[zone.id] = locations;
-            } else {
-              locationsData[zone.id] = [];
-            }
-          }
-
-          setDeliveryLocations(locationsData);
-        } catch (err) {
-          console.error("Error fetching delivery zones or locations:", err);
-          setDeliveryZones([]);
-          setDeliveryLocations({});
+    const fetchZones = async (farmerId) => {
+      try {
+        const response = await fetch(
+          `https://www.maizeai.me/api/buyers/farmers/${farmerId}/delivery-zones`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch delivery zones");
         }
-      };
+        const data = await response.json();
+        setZones(data);
 
-      fetchDeliveryZones();
+        // Fetch locations for each delivery zone
+        for (const zone of data) {
+          fetchLocations(zone.id);
+        }
+      } catch (error) {
+        console.error("Error fetching delivery zones:", error);
+      }
+    };
+
+    const fetchLocations = async (zoneId) => {
+      try {
+        const response = await fetch(
+          `https://www.maizeai.me/api/buyers/delivery-zones/${zoneId}/locations`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch delivery locations");
+        }
+        const data = await response.json();
+        setLocations((prev) => ({
+          ...prev,
+          [zoneId]: data,
+        }));
+      } catch (error) {
+        console.error("Error fetching delivery locations:", error);
+      }
+    };
+
+    if (product?.farmer_id) {
+      fetchZones(product.farmer_id);
     }
   }, [product]);
 
@@ -123,7 +128,7 @@ const Product = () => {
   );
 
   const ShowDeliveryZones = () => {
-    if (!deliveryZones.length) {
+    if (!Object.keys(zones).length) {
       return (
         <p className="text-muted">
           No delivery zones or locations are available for this product.
@@ -134,12 +139,12 @@ const Product = () => {
     return (
       <div>
         <h4>Delivery Zones</h4>
-        {deliveryZones.map((zone) => (
+        {zones.map((zone) => (
           <div key={zone.id} className="mb-3">
             <h5>{zone.zone_name}</h5>
-            {deliveryLocations[zone.id] && deliveryLocations[zone.id].length ? (
+            {locations[zone.id] && locations[zone.id].length > 0 ? (
               <ul className="list-group">
-                {deliveryLocations[zone.id].map((location) => (
+                {locations[zone.id].map((location) => (
                   <li
                     key={location.id}
                     className="list-group-item d-flex justify-content-between align-items-center"
@@ -174,7 +179,7 @@ const Product = () => {
       </div>
       <div className="col-md-6">
         <h1 className="display-5">{product.name} Maize</h1>
-        <h3 className="display-6 fw-bold my-4">ksh {product.price}</h3>
+        <h3 className="display-6 fw-bold my-4">Ksh {product.price}</h3>
         <p className="lead">{product.quantity} Kgs</p>
         <p className="lead">{product.description}</p>
         {product.stock_status === "Out of Stock" && (
