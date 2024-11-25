@@ -149,7 +149,7 @@ const FarmerPayments = () => {
                 {payment.status === "Payment Pending" && (
                   <Button
                     variant="success"
-                    className="me-2"
+                    className="me-2 mb-3"
                     onClick={() => confirmPayment(payment.id)}
                   >
                     Confirm Payment

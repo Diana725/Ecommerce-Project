@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Spinner, Button } from "react-bootstrap";
+import { Spinner, Button, Modal } from "react-bootstrap";
 
 const AddProduct = () => {
   const [name, setName] = useState("");
@@ -10,9 +10,11 @@ const AddProduct = () => {
   const [description, setDescription] = useState("");
   const [payment_method, setPaymentMethod] = useState("");
 
-  // States to track errors and loading status
+  // States to track errors, loading status, and preview functionality
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const navigate = useNavigate();
 
@@ -20,29 +22,33 @@ const AddProduct = () => {
   const validateFields = () => {
     let validationErrors = {};
 
-    if (!name) {
-      validationErrors.name = "Please select a Maize Seed Variety.";
-    }
-    if (!file) {
-      validationErrors.file = "Please upload a file.";
-    }
-    if (!price) {
-      validationErrors.price = "Please enter a price.";
-    }
-    if (!quantity) {
-      validationErrors.quantity = "Please enter a quantity.";
-    }
-    if (!description) {
+    if (!name) validationErrors.name = "Please select a Maize Seed Variety.";
+    if (!file) validationErrors.file = "Please upload a file.";
+    if (!price) validationErrors.price = "Please enter a price.";
+    if (!quantity) validationErrors.quantity = "Please enter a quantity.";
+    if (!description)
       validationErrors.description = "Please enter a description.";
-    }
-    if (!payment_method) {
+    if (!payment_method)
       validationErrors.payment_method = "Please enter a payment method.";
-    }
 
     return validationErrors;
   };
 
-  async function addProduct() {
+  // Handle file input and set preview
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+
+      // Generate a preview URL for the image
+      const reader = new FileReader();
+      reader.onload = () => setPreviewImage(reader.result);
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  // Function to handle Add Product action
+  const handleAddProduct = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -50,14 +56,7 @@ const AddProduct = () => {
       return;
     }
 
-    // Validate the form
-    const validationErrors = validateFields();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors); // Set errors in state
-      return;
-    }
-
-    setLoading(true); // Show loading spinner when the request starts
+    setLoading(true); // Show loading spinner
 
     const formData = new FormData();
     formData.append("name", name);
@@ -88,9 +87,19 @@ const AddProduct = () => {
       console.error("Error:", error.message);
       alert("Failed to add product. Please check the console for details.");
     } finally {
-      setLoading(false); // Hide loading spinner when the request is complete
+      setLoading(false); // Hide loading spinner
     }
-  }
+  };
+
+  // Function to handle submission flow
+  const handleSubmit = () => {
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setShowModal(true); // Show modal for confirmation
+  };
 
   return (
     <div>
@@ -114,8 +123,7 @@ const AddProduct = () => {
         <input
           type="file"
           className={`form-control ${errors.file ? "is-invalid" : ""}`}
-          onChange={(e) => setFile(e.target.files[0])}
-          placeholder="File"
+          onChange={handleFileChange}
         />
         {errors.file && <div className="invalid-feedback">{errors.file}</div>}
         <br />
@@ -165,7 +173,7 @@ const AddProduct = () => {
         <br />
 
         <Button
-          onClick={() => addProduct()}
+          onClick={handleSubmit}
           className="btn btn-primary"
           disabled={loading}
         >
@@ -180,6 +188,59 @@ const AddProduct = () => {
       </div>
       <br />
       <hr />
+
+      {/* Confirmation Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Product Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            <strong>Name:</strong> {name}
+          </p>
+          <p>
+            <strong>Price:</strong> {price}
+          </p>
+          <p>
+            <strong>Quantity:</strong> {quantity}
+          </p>
+          <p>
+            <strong>Description:</strong> {description}
+          </p>
+          <p>
+            <strong>Payment Method:</strong> {payment_method}
+          </p>
+          {previewImage && (
+            <div>
+              <strong>Image Preview:</strong>
+              <br />
+              <img
+                src={previewImage}
+                alt="Preview"
+                style={{
+                  width: "100%",
+                  maxHeight: "200px",
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowModal(false);
+              handleAddProduct();
+            }}
+          >
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

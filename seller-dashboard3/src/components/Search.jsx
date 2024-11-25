@@ -151,12 +151,12 @@ const SearchResults = () => {
                   <p className="card-text lead fw-bold">ksh{product.price}</p>
 
                   {/* Update Button */}
-                  <button
+                  {/* <button
                     className="update mb-2"
                     onClick={() => navigate(`/update/${product.id}`)}
                   >
                     Update
-                  </button>
+                  </button> */}
                   <br />
                   {/* Show Reviews Button */}
                   <button

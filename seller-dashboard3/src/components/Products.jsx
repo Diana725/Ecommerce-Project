@@ -158,7 +158,7 @@ const ProductList = () => {
             <td>Quantity in Kgs per Item</td>
             <td>Description</td>
             <td>Image</td>
-            <td>Update Item</td>
+            {/* <td>Update Item</td> */}
             <td>Show Reviews</td>
             <td>Mark Out of Stock</td>
           </tr>
@@ -180,11 +180,11 @@ const ProductList = () => {
                   alt={item.name}
                 />
               </td>
-              <td>
+              {/* <td>
                 <Link to={"/update/" + item.id}>
                   <button className="update">Update</button>
                 </Link>
-              </td>
+              </td> */}
               <td>
                 <button
                   className="show-reviews-btn"

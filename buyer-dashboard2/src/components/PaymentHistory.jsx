@@ -199,13 +199,13 @@ const PaymentHistory = () => {
                       <Button
                         variant="primary"
                         onClick={() => handleOpenReviewModal(payment.id)}
-                        className="ml-2"
+                        className="ml-2 mt-3"
                       >
                         Add Review
                       </Button>
                     )}
                   {payment.review_submitted === 1 && (
-                    <Button variant="secondary" disabled className="ml-2">
+                    <Button variant="secondary" disabled className="ml-2 mt-3">
                       Review Submitted
                     </Button>
                   )}

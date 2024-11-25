@@ -3,30 +3,31 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/action";
 import Skeleton from "react-loading-skeleton";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
-import ChatBox from "./ChatBox"; // Import the ChatBox component
+import ChatBox from "./ChatBox";
 import Reviews from "./Reviews";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button"; // Bootstrap components for the modal
+import Button from "react-bootstrap/Button";
 
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [zonesLoading, setZonesLoading] = useState(true); // Loading state for zones
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [zonesError, setZonesError] = useState(null); // Error state for zones
+  const [deliveryZones, setDeliveryZones] = useState([]); // State for delivery zones
+  const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const isAuthenticated = () => {
-    return !!localStorage.getItem("token");
-  };
+  const isAuthenticated = () => !!localStorage.getItem("token");
 
-  const handleCloseModal = () => setShowModal(false); // Function to close the modal
-  const handleShowModal = () => setShowModal(true); // Function to show the modal
+  const handleCloseModal = () => setShowModal(false);
+  const handleShowModal = () => setShowModal(true);
 
   const addProduct = (product) => {
     if (product.stock_status === "Out of Stock") {
-      handleShowModal(); // Show the modal if the product is out of stock
+      handleShowModal();
       return;
     }
 
@@ -36,6 +37,7 @@ const Product = () => {
       navigate("/login");
     }
   };
+
   const goToCart = () => {
     if (isAuthenticated()) {
       navigate("/cart");
@@ -43,6 +45,8 @@ const Product = () => {
       navigate("/login");
     }
   };
+
+  // Fetch product details
   useEffect(() => {
     if (!id) {
       console.error("Product ID is not defined.");
@@ -63,34 +67,58 @@ const Product = () => {
 
         const productData = await response.json();
         setProduct(productData);
+
+        // Fetch delivery zones for the farmer
+        const zonesResponse = await fetch(
+          `https://www.maizeai.me/api/buyers/farmers/${productData.farmer_id}/delivery-zones`
+        );
+
+        if (!zonesResponse.ok) {
+          throw new Error("Failed to fetch delivery zones");
+        }
+
+        const zonesData = await zonesResponse.json();
+        const zonesWithLocations = await Promise.all(
+          zonesData.map(async (zone) => {
+            const locationsResponse = await fetch(
+              `https://www.maizeai.me/api/buyers/delivery-zones/${zone.id}/locations`
+            );
+            if (!locationsResponse.ok) {
+              throw new Error("Failed to fetch delivery locations");
+            }
+            const locationsData = await locationsResponse.json();
+            return { ...zone, locations: locationsData };
+          })
+        );
+
+        setDeliveryZones(zonesWithLocations);
       } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error("Error fetching product or zones:", err);
         setError(err.message);
       } finally {
         setLoading(false);
+        setZonesLoading(false);
       }
     };
 
     getProduct();
   }, [id]);
 
-  const Loading = () => {
-    return (
-      <>
-        <div className="col-md-6">
-          <Skeleton height={400} />
-        </div>
-        <div className="col-md-6" style={{ lineHeight: 2 }}>
-          <Skeleton height={75} />
-          <Skeleton height={25} width={300} />
-          <Skeleton height={50} />
-          <Skeleton height={150} />
-          <Skeleton height={50} width={100} />
-          <Skeleton height={50} width={100} style={{ marginLeft: 6 }} />
-        </div>
-      </>
-    );
-  };
+  const Loading = () => (
+    <>
+      <div className="col-md-6">
+        <Skeleton height={400} />
+      </div>
+      <div className="col-md-6" style={{ lineHeight: 2 }}>
+        <Skeleton height={75} />
+        <Skeleton height={25} width={300} />
+        <Skeleton height={50} />
+        <Skeleton height={150} />
+        <Skeleton height={50} width={100} />
+        <Skeleton height={50} width={100} style={{ marginLeft: 6 }} />
+      </div>
+    </>
+  );
 
   const ShowProduct = () => {
     if (!product) return null;
@@ -99,7 +127,7 @@ const Product = () => {
       <>
         <div className="col-md-6">
           <img
-            src={`https://www.maizeai.me/${product.file_path}`} // Dynamic image source
+            src={`https://www.maizeai.me/${product.file_path}`}
             alt={product.name}
             height="400px"
             width="500px"
@@ -129,10 +157,74 @@ const Product = () => {
     );
   };
 
+  const ShowDeliveryZones = () => {
+    if (zonesLoading) {
+      return <Skeleton count={5} />;
+    }
+
+    if (zonesError) {
+      return (
+        <div className="alert alert-danger" role="alert">
+          {zonesError}
+        </div>
+      );
+    }
+
+    if (deliveryZones.length === 0) {
+      return <p className="text-muted">No delivery zones available.</p>;
+    }
+
+    return (
+      <div>
+        <h3 className="my-4">Delivery Zones</h3>
+        <div className="accordion" id="deliveryZonesAccordion">
+          {deliveryZones.map((zone, index) => (
+            <div className="accordion-item" key={zone.id}>
+              <h2 className="accordion-header" id={`heading-${index}`}>
+                <button
+                  className="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target={`#collapse-${index}`}
+                  aria-expanded="true"
+                  aria-controls={`collapse-${index}`}
+                >
+                  {zone.name}
+                </button>
+              </h2>
+              <div
+                id={`collapse-${index}`}
+                className="accordion-collapse collapse show"
+                aria-labelledby={`heading-${index}`}
+                data-bs-parent="#deliveryZonesAccordion"
+              >
+                <div className="accordion-body">
+                  <ul className="list-group">
+                    {zone.locations.map((location) => (
+                      <li
+                        className="list-group-item d-flex justify-content-between align-items-center"
+                        key={location.id}
+                      >
+                        {location.name}
+                        <span className="badge bg-primary rounded-pill">
+                          Ksh {location.delivery_fee}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="container py-5">
-        <div className="row py-4 md-5">
+        <div className="row py-4">
           {loading ? (
             <Loading />
           ) : error ? (
@@ -143,16 +235,15 @@ const Product = () => {
             <ShowProduct />
           )}
         </div>
+        <div className="row py-4">{!loading && <ShowDeliveryZones />}</div>
       </div>
 
       <div className="container">
         <hr />
-        {/* Conditionally render the Reviews component after product data is available */}
         {product && <Reviews productId={product.id} />}
       </div>
       <br />
       <hr />
-      {/* Modal to show out-of-stock warning */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Product Out of Stock</Modal.Title>
