@@ -68,47 +68,54 @@ const Product = () => {
 
   // Fetch delivery zones for a farmer
   useEffect(() => {
-    const fetchZones = async (farmerId) => {
+    const fetchZonesAndLocations = async () => {
+      if (!product?.farmer_id) return;
+
       try {
-        const response = await fetch(
-          `https://www.maizeai.me/api/buyers/farmers/${farmerId}/delivery-zones`
+        // Fetch delivery zones for the farmer
+        const zonesResponse = await fetch(
+          `https://www.maizeai.me/api/buyers/farmers/${product.farmer_id}/delivery-zones`
         );
-        if (!response.ok) {
+
+        if (!zonesResponse.ok) {
           throw new Error("Failed to fetch delivery zones");
         }
-        const data = await response.json();
-        setZones(data);
 
-        // Fetch locations for each delivery zone
-        for (const zone of data) {
-          fetchLocations(zone.id);
-        }
+        const zonesData = await zonesResponse.json();
+        setZones(zonesData);
+
+        // Fetch locations for each delivery zone in parallel
+        const locationsPromises = zonesData.map(async (zone) => {
+          const locationsResponse = await fetch(
+            `https://www.maizeai.me/api/buyers/delivery-zones/${zone.id}/locations`
+          );
+
+          if (!locationsResponse.ok) {
+            throw new Error(
+              `Failed to fetch delivery locations for zone ${zone.id}`
+            );
+          }
+
+          const locationsData = await locationsResponse.json();
+          return { zoneId: zone.id, locations: locationsData };
+        });
+
+        // Resolve all location fetches
+        const allLocations = await Promise.all(locationsPromises);
+
+        // Update locations state
+        const locationsMap = allLocations.reduce((acc, curr) => {
+          acc[curr.zoneId] = curr.locations;
+          return acc;
+        }, {});
+
+        setLocations(locationsMap);
       } catch (error) {
-        console.error("Error fetching delivery zones:", error);
+        console.error("Error fetching delivery zones or locations:", error);
       }
     };
 
-    const fetchLocations = async (zoneId) => {
-      try {
-        const response = await fetch(
-          `https://www.maizeai.me/api/buyers/delivery-zones/${zoneId}/locations`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch delivery locations");
-        }
-        const data = await response.json();
-        setLocations((prev) => ({
-          ...prev,
-          [zoneId]: data,
-        }));
-      } catch (error) {
-        console.error("Error fetching delivery locations:", error);
-      }
-    };
-
-    if (product?.farmer_id) {
-      fetchZones(product.farmer_id);
-    }
+    fetchZonesAndLocations();
   }, [product]);
 
   const Loading = () => (

@@ -196,7 +196,7 @@ const AddProduct = () => {
         </Modal.Header>
         <Modal.Body>
           <p>
-            <strong>Name:</strong> {name}
+            <strong>Name:</strong> {name} Maize
           </p>
           <p>
             <strong>Price:</strong> {price}

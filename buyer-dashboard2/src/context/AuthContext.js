@@ -30,9 +30,6 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    console.log("useEffect - token:", token); // Debugging
-    console.log("useEffect - userData:", userData); // Debugging
-
     if (token && userData) {
       setIsAuthenticated(true);
       setUser(JSON.parse(userData));
