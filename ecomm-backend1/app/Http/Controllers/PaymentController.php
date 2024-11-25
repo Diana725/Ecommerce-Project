@@ -121,6 +121,8 @@ public function getAllPayments()
             'proof_of_payment' => $payment->proof_of_payment,
             'product_name' => $payment->product->name,
             'farmer_name' => $payment->farmer->name,
+            'quantity' => $payment->quantity,
+            'phone_number' => $payment->phone_number,
             'delivery_zone_name' => $payment->deliveryZone ? $payment->deliveryZone->zone_name : null, // Check for existence
             'delivery_location_name' => $payment->deliveryLocation ? $payment->deliveryLocation->location_name : null, // Check for existence
         ]);

@@ -14,6 +14,29 @@ const Login = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(true); // Email verification status
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      fetch(`https://www.maizeai.me/api/buyer/verify-email/${token}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (
+            data.message === "Email verified successfully! You can now log in."
+          ) {
+            setMessage(data.message);
+          } else {
+            setErrorMessage(data.message || "Invalid verification token.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error verifying email:", error);
+          setErrorMessage("Failed to verify email. Please try again.");
+        });
+    }
+  }, []);
+
   // Handle login request
   const handleLogin = async (e) => {
     e.preventDefault();

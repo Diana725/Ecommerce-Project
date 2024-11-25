@@ -113,7 +113,7 @@ const Register = () => {
 
   const handleModalClose = () => {
     setShowModal(false);
-    navigate("/login"); // Redirect to login after closing the modal
+    // navigate("/login");
   };
 
   // Clear the password error when the user starts typing

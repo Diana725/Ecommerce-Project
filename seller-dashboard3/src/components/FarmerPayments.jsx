@@ -136,7 +136,7 @@ const FarmerPayments = () => {
               <Card.Body>
                 <Card.Title>{payment.product.name} Maize</Card.Title>
                 <Card.Text>
-                  <strong>Price:</strong> Ksh{payment.total_price} <br />
+                  <strong>Amount Paid:</strong> Ksh{payment.total_price} <br />
                   <strong>Quantity:</strong> {payment.quantity} Kgs <br />
                   <strong>Buyer Phone:</strong> {payment.phone_number} <br />
                   <strong>Delivery Zone:</strong>{" "}
