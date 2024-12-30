@@ -16,6 +16,7 @@ import FarmerPayments from "./components/FarmerPayments";
 import DeliveryZones from "./components/DeliveryZones";
 import DeliveryTrackingFarmer from "./components/DeliveryTrackingFarmer";
 import ResetPassword from "./components/ResetPassword";
+import Profile from "./components/Profile";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           />
           <Route path="/update/:id" element={<UpdateProduct />} />
           <Route path="/delivery-zones" element={<DeliveryZones />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
     </Router>

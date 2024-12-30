@@ -152,7 +152,6 @@ const Navbar = () => {
                   type="button"
                 >
                   <i className="fa fa-user me-1" style={{ fontSize: 14 }}></i>
-
                   <Dropdown>
                     <Dropdown.Toggle
                       as="span"
@@ -160,6 +159,12 @@ const Navbar = () => {
                       id="dropdownMenuButton"
                     />
                     <Dropdown.Menu>
+                      <Dropdown.Item
+                        onClick={() => navigate("/profile")}
+                        style={{ fontSize: 14 }}
+                      >
+                        View Profile
+                      </Dropdown.Item>
                       <Dropdown.Item
                         onClick={handleLogout}
                         style={{ fontSize: 14 }}
