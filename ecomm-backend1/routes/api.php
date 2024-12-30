@@ -61,7 +61,8 @@ Route::post('/farmer/email/verification/resend', [UserController::class, 'resend
 Route::post('/password/reset/resend', [BuyerController::class, 'resendPasswordResetEmail']);
 Route::post('/farmer/password-reset/resend', [UserController::class, 'resendFarmerPasswordResetToken']);
 
-
+//GSM Module route
+// Route::post('/confirm-payment', [PaymentController::class, 'confirmPayment']);
 
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
@@ -100,6 +101,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //new route for reviews
     Route::get('/farmer/{farmerId}/average-rating', [ReviewController::class, 'getAverageRatingForFarmer']);
+
+    //route for user profile
+    Route::get('/user/profile', [ProfileController::class, 'showProfile']);
+    Route::post('/user/update-profile', [ProfileController::class, 'updateProfile']);
 });
 
 // Protected routes for authenticated buyers
