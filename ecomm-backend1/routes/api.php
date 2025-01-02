@@ -65,6 +65,9 @@ Route::post('/farmer/password-reset/resend', [UserController::class, 'resendFarm
 //GSM Module route
 // Route::post('/confirm-payment', [PaymentController::class, 'confirmPayment']);
 
+//profile route
+Route::get('/products/{productId}/farmer-profile', [ProfileController::class, 'showFarmerProfile']);
+
 // Protected routes for authenticated farmers (users)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('addProduct', [ProductController::class, 'addProduct']);

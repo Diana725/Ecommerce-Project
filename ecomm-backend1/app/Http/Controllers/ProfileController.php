@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use App\Models\Product;
 
 class ProfileController extends Controller
 {
@@ -66,5 +67,38 @@ class ProfileController extends Controller
         $farmer->save();
 
         return response()->json(['message' => 'Profile updated successfully'], 200);
+    }
+    
+    public function showFarmerProfile($productId)
+    {
+        // Fetch the product by the provided ID
+        $product = Product::find($productId);
+
+        // Check if the product exists
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        // Fetch the farmer (user) associated with this product
+        $farmer = User::find($product->user_id);
+
+        // Check if the farmer exists
+        if (!$farmer) {
+            return response()->json(['message' => 'Farmer not found'], 404);
+        }
+
+        // Load delivery zones and locations related to the farmer
+        $deliveryZones = $farmer->deliveryZones()->with('deliveryLocations')->get();
+
+        // Prepare the profile data to return
+        $profileData = [
+            'name' => $farmer->name,
+            'email' => $farmer->email,
+            'phone' => $farmer->phone,
+            'photo' => $farmer->file_path ? url('storage/' . $farmer->file_path) : url('storage/app/public/images/default-avatar.jpeg'), // Farmer's photo or default
+            'delivery_zones' => $deliveryZones, // Delivery zones and locations
+        ];
+
+        return response()->json($profileData, 200);
     }
 }

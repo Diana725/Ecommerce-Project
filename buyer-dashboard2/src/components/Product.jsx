@@ -13,9 +13,9 @@ const Product = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [zones, setZones] = useState({});
-  const [locations, setLocations] = useState({});
+  const [farmerProfile, setFarmerProfile] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showFarmerModal, setShowFarmerModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -23,6 +23,12 @@ const Product = () => {
 
   const handleCloseModal = () => setShowModal(false);
   const handleShowModal = () => setShowModal(true);
+
+  const handleCloseFarmerModal = () => setShowFarmerModal(false);
+  const handleShowFarmerModal = () => {
+    fetchFarmerProfile();
+    setShowFarmerModal(true);
+  };
 
   const addProduct = (product) => {
     if (product.stock_status === "Out of Stock") {
@@ -66,57 +72,20 @@ const Product = () => {
     fetchProduct();
   }, [id]);
 
-  // Fetch delivery zones for a farmer
-  useEffect(() => {
-    const fetchZonesAndLocations = async () => {
-      if (!product?.farmer_id) return;
+  // Fetch farmer profile
+  const fetchFarmerProfile = async () => {
+    try {
+      const response = await fetch(
+        `https://www.buyer.maizeai.me/products/${id}/farmer-profile`
+      );
+      if (!response.ok) throw new Error("Failed to fetch farmer profile");
 
-      try {
-        // Fetch delivery zones for the farmer
-        const zonesResponse = await fetch(
-          `https://www.maizeai.me/api/buyers/farmers/${product.farmer_id}/delivery-zones`
-        );
-
-        if (!zonesResponse.ok) {
-          throw new Error("Failed to fetch delivery zones");
-        }
-
-        const zonesData = await zonesResponse.json();
-        setZones(zonesData);
-
-        // Fetch locations for each delivery zone in parallel
-        const locationsPromises = zonesData.map(async (zone) => {
-          const locationsResponse = await fetch(
-            `https://www.maizeai.me/api/buyers/delivery-zones/${zone.id}/locations`
-          );
-
-          if (!locationsResponse.ok) {
-            throw new Error(
-              `Failed to fetch delivery locations for zone ${zone.id}`
-            );
-          }
-
-          const locationsData = await locationsResponse.json();
-          return { zoneId: zone.id, locations: locationsData };
-        });
-
-        // Resolve all location fetches
-        const allLocations = await Promise.all(locationsPromises);
-
-        // Update locations state
-        const locationsMap = allLocations.reduce((acc, curr) => {
-          acc[curr.zoneId] = curr.locations;
-          return acc;
-        }, {});
-
-        setLocations(locationsMap);
-      } catch (error) {
-        console.error("Error fetching delivery zones or locations:", error);
-      }
-    };
-
-    fetchZonesAndLocations();
-  }, [product]);
+      const profileData = await response.json();
+      setFarmerProfile(profileData);
+    } catch (err) {
+      console.error("Error fetching farmer profile:", err);
+    }
+  };
 
   const Loading = () => (
     <>
@@ -133,46 +102,6 @@ const Product = () => {
       </div>
     </>
   );
-
-  const ShowDeliveryZones = () => {
-    if (!Object.keys(zones).length) {
-      return (
-        <p className="text-muted">
-          No delivery zones or locations are available for this product.
-        </p>
-      );
-    }
-
-    return (
-      <div>
-        <h4>Delivery Zones</h4>
-        {zones.map((zone) => (
-          <div key={zone.id} className="mb-3">
-            <h5>{zone.zone_name}</h5>
-            {locations[zone.id] && locations[zone.id].length > 0 ? (
-              <ul className="list-group">
-                {locations[zone.id].map((location) => (
-                  <li
-                    key={location.id}
-                    className="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    {location.name}
-                    <span className="badge bg-primary rounded-pill">
-                      Fee: Ksh {location.delivery_fee}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted">
-                No locations available for this zone.
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   const ShowProduct = () => (
     <>
@@ -201,9 +130,14 @@ const Product = () => {
         <button className="btn btn-dark ms-2 px-3 py-2" onClick={goToCart}>
           Go to Cart
         </button>
+        <button
+          className="btn btn-info ms-2 px-3 py-2"
+          onClick={handleShowFarmerModal}
+        >
+          View Farmer Profile
+        </button>
       </div>
       <hr />
-      <ShowDeliveryZones />
     </>
   );
 
@@ -228,6 +162,7 @@ const Product = () => {
         {product && <Reviews productId={product.id} />}
       </div>
 
+      {/* Out of Stock Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Product Out of Stock</Modal.Title>
@@ -238,6 +173,30 @@ const Product = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Farmer Profile Modal */}
+      <Modal show={showFarmerModal} onHide={handleCloseFarmerModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Farmer Profile</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {farmerProfile ? (
+            <>
+              <h5>{farmerProfile.name}</h5>
+              <p>{farmerProfile.bio}</p>
+              <p>Location: {farmerProfile.location}</p>
+              <p>Contact: {farmerProfile.contact}</p>
+            </>
+          ) : (
+            <p>Loading farmer profile...</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseFarmerModal}>
             Close
           </Button>
         </Modal.Footer>
