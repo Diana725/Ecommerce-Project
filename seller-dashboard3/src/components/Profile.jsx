@@ -5,7 +5,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const Profile = () => {
   const [userData, setUserData] = useState({});
   const [deliveryZones, setDeliveryZones] = useState([]);
-  const [deliveryLocations, setDeliveryLocations] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedUserData, setEditedUserData] = useState({
     name: "",
@@ -28,13 +27,19 @@ const Profile = () => {
             },
           }
         );
-        const userData = await userResponse.json();
-        setUserData(userData.user);
-        setEditedUserData({
-          name: userData.user.name || "",
-          phone: userData.user.phone || "",
-          email: userData.user.email || "",
+        const data = await userResponse.json();
+        setUserData({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          photo: data.photo,
         });
+        setEditedUserData({
+          name: data.name || "",
+          phone: data.phone || "",
+          email: data.email || "",
+        });
+        setDeliveryZones(data.delivery_zones || []);
       } catch (error) {
         console.error("Error fetching profile data", error);
       }
@@ -137,24 +142,18 @@ const Profile = () => {
             {deliveryZones.length > 0 ? (
               deliveryZones.map((zone) => (
                 <li key={zone.id} className="list-group-item">
-                  {zone.zone_name}
+                  <strong>{zone.zone_name}</strong>
+                  <ul className="list-group mt-2">
+                    {zone.delivery_locations.map((location) => (
+                      <li key={location.id} className="list-group-item">
+                        {location.location_name} (Fee: {location.delivery_fee})
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))
             ) : (
               <p>No delivery zones added</p>
-            )}
-          </ul>
-
-          <h4 className="mt-4">Delivery Locations</h4>
-          <ul className="list-group">
-            {deliveryLocations.length > 0 ? (
-              deliveryLocations.map((location) => (
-                <li key={location.id} className="list-group-item">
-                  {location.location_name} (Fee: {location.delivery_fee})
-                </li>
-              ))
-            ) : (
-              <p>No delivery locations added</p>
             )}
           </ul>
 
