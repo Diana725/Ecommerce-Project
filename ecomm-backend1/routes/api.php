@@ -15,6 +15,7 @@ use App\Http\Controllers\DeliveryZoneController;
 use App\Http\Controllers\DeliveryFeeController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ProfileController;
 
 // Routes that don't need authentication
 Route::post('/login', [UserController::class, 'login']);
