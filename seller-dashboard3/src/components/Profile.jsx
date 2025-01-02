@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Profile = () => {
-  const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    photo: "",
-  });
+  const [userData, setUserData] = useState({});
   const [deliveryZones, setDeliveryZones] = useState([]);
-  const [isEditing, setIsEditing] = useState(false); // For edit form visibility
+  const [deliveryLocations, setDeliveryLocations] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [editedUserData, setEditedUserData] = useState({
     name: "",
     phone: "",
@@ -19,11 +16,10 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
-  // Fetch profile and related data using Fetch API
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(
+        const userResponse = await fetch(
           "https://www.maizeai.me/api/user/profile",
           {
             method: "GET",
@@ -32,24 +28,12 @@ const Profile = () => {
             },
           }
         );
-        const data = await response.json();
-
-        // Setting user data
-        setUserData({
-          name: data.name || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          photo: data.photo || "/default-avatar.png",
-        });
-
-        // Setting delivery zones
-        setDeliveryZones(data.delivery_zones || []);
-
-        // Set edited data for form inputs
+        const userData = await userResponse.json();
+        setUserData(userData.user);
         setEditedUserData({
-          name: data.name || "",
-          phone: data.phone || "",
-          email: data.email || "",
+          name: userData.user.name || "",
+          phone: userData.user.phone || "",
+          email: userData.user.email || "",
         });
       } catch (error) {
         console.error("Error fetching profile data", error);
@@ -99,7 +83,7 @@ const Profile = () => {
         setUserData({
           ...userData,
           ...editedUserData,
-          photo: result.photo || userData.photo,
+          photo: result.photo,
         });
         setIsEditing(false); // Hide edit form after submission
       } else {
@@ -111,102 +95,158 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-page">
-      <h1>Your Profile</h1>
-      <div>
-        <img
-          src={userData.photo} // Show user photo or default if not present
-          alt="Profile"
-          style={{ width: 100, height: 100, objectFit: "cover" }}
-        />
-        <p>Name: {userData.name}</p>
-        <p>Email: {userData.email}</p>
-        <p>Phone: {userData.phone}</p>
-      </div>
+    <div className="container mt-5">
+      <h1 className="text-center mb-4">Your Profile</h1>
 
-      <h2>Delivery Zones</h2>
-      {deliveryZones.length > 0 ? (
-        deliveryZones.map((zone) => (
-          <div key={zone.id}>
-            <h3>{zone.zone_name}</h3>
-            <ul>
-              {zone.delivery_locations.map((location) => (
-                <li key={location.id}>
+      <div className="card">
+        <div className="card-body">
+          <div className="row">
+            <div className="col-md-4 text-center">
+              {userData.photo ? (
+                <img
+                  src={userData.photo}
+                  alt="Profile"
+                  className="img-thumbnail"
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div className="alert alert-warning" role="alert">
+                  No image added
+                </div>
+              )}
+            </div>
+            <div className="col-md-8">
+              <p>
+                <strong>Name:</strong> {userData.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {userData.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {userData.phone}
+              </p>
+            </div>
+          </div>
+
+          <h4 className="mt-4">Delivery Zones</h4>
+          <ul className="list-group">
+            {deliveryZones.length > 0 ? (
+              deliveryZones.map((zone) => (
+                <li key={zone.id} className="list-group-item">
+                  {zone.zone_name}
+                </li>
+              ))
+            ) : (
+              <p>No delivery zones added</p>
+            )}
+          </ul>
+
+          <h4 className="mt-4">Delivery Locations</h4>
+          <ul className="list-group">
+            {deliveryLocations.length > 0 ? (
+              deliveryLocations.map((location) => (
+                <li key={location.id} className="list-group-item">
                   {location.location_name} (Fee: {location.delivery_fee})
                 </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      ) : (
-        <p>No delivery zones available.</p>
-      )}
+              ))
+            ) : (
+              <p>No delivery locations added</p>
+            )}
+          </ul>
 
-      <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+          <div className="text-right mt-4">
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
 
       {isEditing && (
-        <div className="edit-form" style={editFormStyles}>
-          <form onSubmit={handleEditSubmit} encType="multipart/form-data">
-            <div>
-              <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={editedUserData.name}
-                onChange={handleInputChange}
-                required
-              />
+        <div className="modal fade show d-block" role="dialog">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Profile</h5>
+                <button
+                  type="button"
+                  className="close"
+                  aria-label="Close"
+                  onClick={() => setIsEditing(false)}
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleEditSubmit} encType="multipart/form-data">
+                  <div className="form-group">
+                    <label>Name:</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="form-control"
+                      value={editedUserData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email:</label>
+                    <input
+                      type="email"
+                      name="email"
+                      className="form-control"
+                      value={editedUserData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone:</label>
+                    <input
+                      type="text"
+                      name="phone"
+                      className="form-control"
+                      value={editedUserData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Profile Image:</label>
+                    <input
+                      type="file"
+                      className="form-control-file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button type="submit" className="btn btn-success">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <div>
-              <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={editedUserData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Phone:</label>
-              <input
-                type="text"
-                name="phone"
-                value={editedUserData.phone}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <label>Profile Image:</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-            </div>
-            <div>
-              <button type="submit">Save</button>
-              <button type="button" onClick={() => setIsEditing(false)}>
-                Cancel
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       )}
     </div>
   );
-};
-
-// Simple styles for the edit form, to be displayed on top of the profile page
-const editFormStyles = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  backgroundColor: "#fff",
-  padding: "20px",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  zIndex: 1000,
 };
 
 export default Profile;
