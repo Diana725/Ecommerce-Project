@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    photo: "",
+  });
   const [deliveryZones, setDeliveryZones] = useState([]);
-  const [deliveryLocations, setDeliveryLocations] = useState([]);
   const [isEditing, setIsEditing] = useState(false); // For edit form visibility
   const [editedUserData, setEditedUserData] = useState({
     name: "",
@@ -19,8 +23,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // Fetch user profile
-        const userResponse = await fetch(
+        const response = await fetch(
           "https://www.maizeai.me/api/user/profile",
           {
             method: "GET",
@@ -29,12 +32,24 @@ const Profile = () => {
             },
           }
         );
-        const userData = await userResponse.json();
-        setUserData(userData.user);
+        const data = await response.json();
+
+        // Setting user data
+        setUserData({
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          photo: data.photo || "/default-avatar.png",
+        });
+
+        // Setting delivery zones
+        setDeliveryZones(data.delivery_zones || []);
+
+        // Set edited data for form inputs
         setEditedUserData({
-          name: userData.user.name || "",
-          phone: userData.user.phone || "",
-          email: userData.user.email || "",
+          name: data.name || "",
+          phone: data.phone || "",
+          email: data.email || "",
         });
       } catch (error) {
         console.error("Error fetching profile data", error);
@@ -84,7 +99,7 @@ const Profile = () => {
         setUserData({
           ...userData,
           ...editedUserData,
-          file_path: result.file_path,
+          photo: result.photo || userData.photo,
         });
         setIsEditing(false); // Hide edit form after submission
       } else {
@@ -100,7 +115,7 @@ const Profile = () => {
       <h1>Your Profile</h1>
       <div>
         <img
-          src={userData.file_path || "/default-avatar.png"} // Show default if no image
+          src={userData.photo} // Show user photo or default if not present
           alt="Profile"
           style={{ width: 100, height: 100, objectFit: "cover" }}
         />
@@ -110,20 +125,22 @@ const Profile = () => {
       </div>
 
       <h2>Delivery Zones</h2>
-      <ul>
-        {deliveryZones.map((zone) => (
-          <li key={zone.id}>{zone.zone_name}</li>
-        ))}
-      </ul>
-
-      <h2>Delivery Locations</h2>
-      <ul>
-        {deliveryLocations.map((location) => (
-          <li key={location.id}>
-            {location.location_name} (Fee: {location.delivery_fee})
-          </li>
-        ))}
-      </ul>
+      {deliveryZones.length > 0 ? (
+        deliveryZones.map((zone) => (
+          <div key={zone.id}>
+            <h3>{zone.zone_name}</h3>
+            <ul>
+              {zone.delivery_locations.map((location) => (
+                <li key={location.id}>
+                  {location.location_name} (Fee: {location.delivery_fee})
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      ) : (
+        <p>No delivery zones available.</p>
+      )}
 
       <button onClick={() => setIsEditing(true)}>Edit Profile</button>
 
