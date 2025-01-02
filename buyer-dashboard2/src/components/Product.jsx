@@ -76,7 +76,7 @@ const Product = () => {
   const fetchFarmerProfile = async () => {
     try {
       const response = await fetch(
-        `https://www.buyer.maizeai.me/products/${id}/farmer-profile`
+        `https://www.maizeai.me/api/products/${id}/farmer-profile`
       );
       if (!response.ok) throw new Error("Failed to fetch farmer profile");
 
