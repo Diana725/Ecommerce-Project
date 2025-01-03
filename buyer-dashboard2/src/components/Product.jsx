@@ -186,10 +186,35 @@ const Product = () => {
         <Modal.Body>
           {farmerProfile ? (
             <>
-              <h5>{farmerProfile.name}</h5>
-              <p>{farmerProfile.bio}</p>
-              <p>Location: {farmerProfile.location}</p>
-              <p>Contact: {farmerProfile.contact}</p>
+              <h5>Name: {farmerProfile.name}</h5>
+              <p>Phone Number: {farmerProfile.phone}</p>
+              <p>Email: {farmerProfile.email}</p>
+
+              <h6>Delivery Zones:</h6>
+              {farmerProfile.delivery_zones.length > 0 ? (
+                <ul>
+                  {farmerProfile.delivery_zones.map((zone) => (
+                    <li key={zone.id}>
+                      <strong>Zone Name:</strong> {zone.zone_name}
+                      <ul>
+                        {zone.delivery_locations.length > 0 ? (
+                          zone.delivery_locations.map((location) => (
+                            <li key={location.id}>
+                              <strong>Location:</strong>{" "}
+                              {location.location_name} - <strong>Fee:</strong>{" "}
+                              Ksh {location.delivery_fee}
+                            </li>
+                          ))
+                        ) : (
+                          <li>No delivery locations available.</li>
+                        )}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No delivery zones available.</p>
+              )}
             </>
           ) : (
             <p>Loading farmer profile...</p>
