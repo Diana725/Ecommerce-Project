@@ -4,10 +4,9 @@ import { Line } from "react-chartjs-2";
 import "./PricePrediction.css";
 
 const PricePredictions = () => {
-  const [maizeVariety, setMaizeVariety] = useState("");
-  const [marketType, setMarketType] = useState("");
   const [county, setCounty] = useState("");
   const [date, setDate] = useState("");
+  const [modelChoice, setModelChoice] = useState("");
   const [prediction, setPrediction] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,19 +20,22 @@ const PricePredictions = () => {
   const fetchPrediction = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://api.example.com/predict-price`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ maizeVariety, marketType, county, date }),
-      });
+      const apiUrl = `https://81e1-102-219-208-126.ngrok-free.app//predict?county=${encodeURIComponent(
+        county
+      )}&date=${encodeURIComponent(date)}&model_choice=${encodeURIComponent(
+        modelChoice
+      )}`;
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
       const result = await response.json();
       setPrediction(result.predictedPrice);
 
       const newPrediction = {
-        maizeVariety,
-        marketType,
         county,
         date,
+        modelChoice,
         predictedPrice: result.predictedPrice,
       };
       const updatedHistory = [...history, newPrediction];
@@ -62,8 +64,10 @@ const PricePredictions = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (maizeVariety && marketType && county && date) {
+    if (county && date && modelChoice) {
       fetchPrediction();
+    } else {
+      alert("Please fill in all required fields.");
     }
   };
 
@@ -75,29 +79,12 @@ const PricePredictions = () => {
         <form onSubmit={handleSubmit} className="prediction-form">
           <div className="form-group">
             <label>Maize Variety</label>
-            <select
-              value={maizeVariety}
-              onChange={(e) => setMaizeVariety(e.target.value)}
-              required
-            >
+            <select disabled>
               <option value="">Select</option>
               <option value="Traditional">Traditional Maize</option>
               <option value="White">White Maize</option>
               <option value="Yellow">Yellow Maize</option>
               <option value="URI">URI Maize</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Market Type</label>
-            <select
-              value={marketType}
-              onChange={(e) => setMarketType(e.target.value)}
-              required
-            >
-              <option value="">Select</option>
-              <option value="Wholesale">Wholesale</option>
-              <option value="Retail">Retail</option>
             </select>
           </div>
 
@@ -121,6 +108,19 @@ const PricePredictions = () => {
             />
           </div>
 
+          <div className="form-group">
+            <label>Market Type</label>
+            <select
+              value={modelChoice}
+              onChange={(e) => setModelChoice(e.target.value)}
+              required
+            >
+              <option value="">Select</option>
+              <option value="wholesale">Wholesale</option>
+              <option value="retail">Retail</option>
+            </select>
+          </div>
+
           <button type="submit" className="predict-btn">
             {loading ? "Loading..." : "Predict Price"}
           </button>
@@ -140,8 +140,8 @@ const PricePredictions = () => {
             <ul>
               {history.map((item, index) => (
                 <li key={index}>
-                  {item.date} - {item.maizeVariety} ({item.marketType},{" "}
-                  {item.county}): Kshs {item.predictedPrice}
+                  {item.date} - {item.county} ({item.modelChoice}): Kshs{" "}
+                  {item.predictedPrice}
                 </li>
               ))}
             </ul>
