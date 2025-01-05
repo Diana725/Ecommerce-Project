@@ -25,10 +25,19 @@ const PricePredictions = () => {
       )}&date=${encodeURIComponent(date)}&model_choice=${encodeURIComponent(
         modelChoice
       )}`;
-      const response = await fetch(apiUrl);
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "ngrok-skip-browser-warning": "true", // Add this header
+          "Content-Type": "application/json", // Optional but good practice
+        },
+      });
+
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
+
       const result = await response.json();
       setPrediction(result.predictedPrice);
 
@@ -38,6 +47,7 @@ const PricePredictions = () => {
         modelChoice,
         predictedPrice: result.predictedPrice,
       };
+
       const updatedHistory = [...history, newPrediction];
       setHistory(updatedHistory);
       localStorage.setItem("predictionHistory", JSON.stringify(updatedHistory));
