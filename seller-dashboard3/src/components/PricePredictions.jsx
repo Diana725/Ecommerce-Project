@@ -7,6 +7,7 @@ const PricePredictions = () => {
   const [county, setCounty] = useState("");
   const [date, setDate] = useState("");
   const [modelChoice, setModelChoice] = useState("");
+  const [maizeVariety, setMaizeVariety] = useState(""); // Dummy field
   const [prediction, setPrediction] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,8 +30,8 @@ const PricePredictions = () => {
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
-          "ngrok-skip-browser-warning": "true", // Add this header
-          "Content-Type": "application/json", // Optional but good practice
+          "ngrok-skip-browser-warning": "true",
+          "Content-Type": "application/json",
         },
       });
 
@@ -39,13 +40,13 @@ const PricePredictions = () => {
       }
 
       const result = await response.json();
-      setPrediction(result.predictedPrice);
+      setPrediction(result.prediction); // Correctly display the prediction
 
       const newPrediction = {
         county,
         date,
         modelChoice,
-        predictedPrice: result.predictedPrice,
+        predictedPrice: result.prediction, // Update with correct field
       };
 
       const updatedHistory = [...history, newPrediction];
@@ -89,7 +90,10 @@ const PricePredictions = () => {
         <form onSubmit={handleSubmit} className="prediction-form">
           <div className="form-group">
             <label>Maize Variety</label>
-            <select disabled>
+            <select
+              value={maizeVariety}
+              onChange={(e) => setMaizeVariety(e.target.value)}
+            >
               <option value="">Select</option>
               <option value="Traditional">Traditional Maize</option>
               <option value="White">White Maize</option>
