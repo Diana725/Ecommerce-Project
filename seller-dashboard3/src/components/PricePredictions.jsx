@@ -20,7 +20,7 @@ const PricePredictions = () => {
   const fetchPrediction = async () => {
     setLoading(true);
     try {
-      const apiUrl = `https://81e1-102-219-208-126.ngrok-free.app//predict?county=${encodeURIComponent(
+      const apiUrl = `https://81e1-102-219-208-126.ngrok-free.app/predict?county=${encodeURIComponent(
         county
       )}&date=${encodeURIComponent(date)}&model_choice=${encodeURIComponent(
         modelChoice
