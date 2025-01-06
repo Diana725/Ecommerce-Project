@@ -65,11 +65,13 @@ const PricePredictions = () => {
 
   const submitPersonalizedUpdates = async () => {
     try {
+      const token = localStorage.getItem("token"); // Retrieve the token from local storage
       const apiUrl = `https://www.maizeai.me/api/predictions`;
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the token in the request headers
         },
         body: JSON.stringify({
           phone_number: phoneNumber,
@@ -232,11 +234,13 @@ const PricePredictions = () => {
 
                     // Call API to update the database
                     try {
+                      const token = localStorage.getItem("token");
                       const apiUrl = `https://www.maizeai.me/api/predictions/enable`;
                       const response = await fetch(apiUrl, {
                         method: "PUT",
                         headers: {
                           "Content-Type": "application/json",
+                          Authorization: `Bearer ${token}`,
                         },
                         body: JSON.stringify({ is_enabled: newValue }),
                       });
