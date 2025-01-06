@@ -11,6 +11,10 @@ const PricePredictions = () => {
   const [prediction, setPrediction] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(""); // New phone number state
+  const [receiveUpdates, setReceiveUpdates] = useState(false); // New state to check if they want updates
+  const [countyForMessages, setCountyForMessages] = useState("");
+  const [isEnabled, setIsEnabled] = useState(true);
 
   useEffect(() => {
     const savedHistory =
@@ -56,6 +60,30 @@ const PricePredictions = () => {
       console.error("Error fetching prediction:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const submitPersonalizedUpdates = async () => {
+    try {
+      const apiUrl = `https://www.maizeai.me/api/predictions`;
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone_number: phoneNumber,
+          county: countyForMessages, // Send the county collected for messages
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error submitting your preferences.");
+      }
+
+      alert("Preferences successfully submitted.");
+    } catch (error) {
+      console.error("Error submitting preferences:", error);
     }
   };
 
@@ -161,6 +189,82 @@ const PricePredictions = () => {
             </ul>
           </div>
         )}
+
+        <div className="form-group">
+          <h3>Personalized Updates</h3>
+          <label>Would you like to receive updates?</label>
+          <input
+            type="checkbox"
+            checked={receiveUpdates}
+            onChange={(e) => setReceiveUpdates(e.target.checked)}
+          />
+
+          {receiveUpdates && (
+            <>
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="text"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>County (For Messages)</label>
+                <input
+                  type="text"
+                  value={countyForMessages}
+                  onChange={(e) => setCountyForMessages(e.target.value)} // New input for the backend county
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Enable Receiving Updates</label>
+                <input
+                  type="checkbox"
+                  checked={isEnabled}
+                  onChange={async (e) => {
+                    const newValue = e.target.checked;
+                    setIsEnabled(newValue); // Update state immediately for a responsive UI
+
+                    // Call API to update the database
+                    try {
+                      const apiUrl = `https://www.maizeai.me/api/predictions/enable`;
+                      const response = await fetch(apiUrl, {
+                        method: "PUT",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ is_enabled: newValue }),
+                      });
+
+                      if (!response.ok) {
+                        throw new Error("Error updating preferences.");
+                      }
+
+                      alert("Preferences updated successfully.");
+                    } catch (error) {
+                      console.error("Error updating preferences:", error);
+                      alert("Failed to update preferences. Please try again.");
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <button
+                  className="predict-btn"
+                  onClick={submitPersonalizedUpdates}
+                >
+                  Submit Preferences
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
       <br />
       <hr />

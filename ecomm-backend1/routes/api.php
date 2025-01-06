@@ -16,6 +16,7 @@ use App\Http\Controllers\DeliveryFeeController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PredictionController;
 
 // Routes that don't need authentication
 Route::post('/login', [UserController::class, 'login']);
@@ -109,6 +110,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //route for user profile
     Route::get('/user/profile', [ProfileController::class, 'showProfile']);
     Route::post('/user/update-profile', [ProfileController::class, 'updateProfile']);
+
+    //GSM Module route
+    Route::post('/predictions', [PredictionController::class, 'store']);
+    Route::put('/predictions/enable', [PredictionController::class, 'toggleIsEnabled']);
 });
 
 // Protected routes for authenticated buyers
