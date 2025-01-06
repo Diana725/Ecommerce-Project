@@ -64,7 +64,7 @@ Route::post('/password/reset/resend', [BuyerController::class, 'resendPasswordRe
 Route::post('/farmer/password-reset/resend', [UserController::class, 'resendFarmerPasswordResetToken']);
 
 //GSM Module route
-// Route::post('/confirm-payment', [PaymentController::class, 'confirmPayment']);
+Route::get('/predictions/enabled', [PredictionController::class, 'getEnabledPreferences']);
 
 //profile route
 Route::get('/products/{productId}/farmer-profile', [ProfileController::class, 'showFarmerProfile']);

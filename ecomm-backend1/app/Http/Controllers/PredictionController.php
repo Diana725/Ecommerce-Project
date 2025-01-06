@@ -59,4 +59,13 @@ class PredictionController extends Controller
             'prediction' => $prediction,
         ]);
     }
+    public function getEnabledPreferences()
+    {
+        $enabledPreferences = Prediction::where('is_enabled', 1)->get(['phone_number', 'county']);
+
+        return response()->json([
+            'message' => 'Enabled preferences retrieved successfully.',
+            'data' => $enabledPreferences
+        ]);
+    }
 }
