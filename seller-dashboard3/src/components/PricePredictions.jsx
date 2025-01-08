@@ -3,6 +3,56 @@ import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import "./PricePrediction.css";
 
+const counties = [
+  "Baringo",
+  "Bomet",
+  "Bungoma",
+  "Busia",
+  "Elgeyo-Marakwet",
+  "Embu",
+  "Garissa",
+  "Homa-bay",
+  "Isiolo",
+  "Kajiado",
+  "Kakamega",
+  "Kericho",
+  "Kiambu",
+  "Kilifi",
+  "Kirinyaga",
+  "Kisii",
+  "Kisumu",
+  "Kitui",
+  "Kwale",
+  "Laikipia",
+  "Lamu",
+  "Machakos",
+  "Makueni",
+  "Mandera",
+  "Meru",
+  "Migori",
+  "Mombasa",
+  "Muranga",
+  "Nairobi",
+  "Nakuru",
+  "Nandi",
+  "Narok",
+  "Nyamira",
+  "Nyandarua",
+  "Nyeri",
+  "Samburu",
+  "Siaya",
+  "Taita-Taveta",
+  "Tana-River",
+  "Tharaka-Nithi",
+  "Trans-Nzoia",
+  "Turkana",
+  "Uasin-Gishu",
+  "Vihiga",
+  "Wajir",
+  "West-Pokot",
+  "test",
+];
+
 const PricePredictions = () => {
   const [county, setCounty] = useState("");
   const [date, setDate] = useState("");
@@ -25,7 +75,7 @@ const PricePredictions = () => {
   const fetchPrediction = async () => {
     setLoading(true);
     try {
-      const apiUrl = `https://9645-102-219-208-126.ngrok-free.app/predict?county=${encodeURIComponent(
+      const apiUrl = `http://54.175.33.203:5000/predict?county=${encodeURIComponent(
         county
       )}&date=${encodeURIComponent(date)}&model_choice=${encodeURIComponent(
         modelChoice
@@ -66,7 +116,7 @@ const PricePredictions = () => {
   const submitPersonalizedUpdates = async () => {
     try {
       const token = localStorage.getItem("token"); // Retrieve the token from local storage
-      const apiUrl = `https://www.maizeai.me/api/predictions`;
+      const apiUrl = "https://www.maizeai.me/api/predictions";
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -134,12 +184,18 @@ const PricePredictions = () => {
 
           <div className="form-group">
             <label>County</label>
-            <input
-              type="text"
+            <select
               value={county}
               onChange={(e) => setCounty(e.target.value)}
               required
-            />
+            >
+              <option value="">Select County</option>
+              {counties.map((county) => (
+                <option key={county} value={county}>
+                  {county}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
@@ -194,7 +250,9 @@ const PricePredictions = () => {
 
         <div className="form-group">
           <h3>Personalized Updates</h3>
-          <label>Would you like to receive updates?</label>
+          <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+            Would you like to receive updates?
+          </label>
           <input
             type="checkbox"
             checked={receiveUpdates}
@@ -215,12 +273,18 @@ const PricePredictions = () => {
 
               <div className="form-group">
                 <label>County (For Messages)</label>
-                <input
-                  type="text"
+                <select
                   value={countyForMessages}
-                  onChange={(e) => setCountyForMessages(e.target.value)} // New input for the backend county
+                  onChange={(e) => setCountyForMessages(e.target.value)}
                   required
-                />
+                >
+                  <option value="">Select County</option>
+                  {counties.map((county) => (
+                    <option key={county} value={county}>
+                      {county}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">
@@ -228,50 +292,19 @@ const PricePredictions = () => {
                 <input
                   type="checkbox"
                   checked={isEnabled}
-                  onChange={async (e) => {
-                    const newValue = e.target.checked;
-                    setIsEnabled(newValue); // Update state immediately for a responsive UI
-
-                    // Call API to update the database
-                    try {
-                      const token = localStorage.getItem("token");
-                      const apiUrl = `https://www.maizeai.me/api/predictions/enable`;
-                      const response = await fetch(apiUrl, {
-                        method: "PUT",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ is_enabled: newValue }),
-                      });
-
-                      if (!response.ok) {
-                        throw new Error("Error updating preferences.");
-                      }
-
-                      alert("Preferences updated successfully.");
-                    } catch (error) {
-                      console.error("Error updating preferences:", error);
-                      alert("Failed to update preferences. Please try again.");
-                    }
-                  }}
+                  onChange={(e) => setIsEnabled(e.target.checked)}
                 />
               </div>
 
-              <div className="form-group">
-                <button
-                  className="predict-btn"
-                  onClick={submitPersonalizedUpdates}
-                >
-                  Submit Preferences
-                </button>
-              </div>
+              <button onClick={submitPersonalizedUpdates} disabled={!isEnabled}>
+                {isEnabled
+                  ? "Submit Phone and County for Updates"
+                  : "Disable receiving updates"}
+              </button>
             </>
           )}
         </div>
       </div>
-      <br />
-      <hr />
     </div>
   );
 };

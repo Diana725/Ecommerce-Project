@@ -106,7 +106,7 @@ const Profile = () => {
       <div className="card">
         <div className="card-body">
           <div className="row">
-            <div className="col-md-4 text-center">
+            {/* <div className="col-md-4 text-center">
               {userData.photo ? (
                 <img
                   src={userData.photo}
@@ -123,8 +123,8 @@ const Profile = () => {
                   No image added
                 </div>
               )}
-            </div>
-            <div className="col-md-8">
+            </div> */}
+            <div>
               <p>
                 <strong>Name:</strong> {userData.name}
               </p>
@@ -217,7 +217,7 @@ const Profile = () => {
                       onChange={handleInputChange}
                     />
                   </div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label>Profile Image:</label>
                     <input
                       type="file"
@@ -225,7 +225,7 @@ const Profile = () => {
                       accept="image/*"
                       onChange={handleImageChange}
                     />
-                  </div>
+                  </div> */}
                   <div className="modal-footer">
                     <button type="submit" className="btn btn-success">
                       Save
