@@ -32,17 +32,6 @@ const About = () => {
         cutting-edge price prediction feature.
       </p>
 
-      <h2 className="mt-5">Price Predictions Powered by AI</h2>
-      <p className="lead">
-        Leveraging the power of machine learning, our price prediction tool
-        provides accurate forecasts of maize prices, helping both buyers and
-        farmers make informed decisions. This tool analyzes various market
-        factors and trends, offering insights that were previously unavailable
-        to small-scale farmers and individual buyers. With Maize.ai, you can
-        plan your sales or purchases with confidence, knowing that you have the
-        latest data-driven predictions at your fingertips.
-      </p>
-
       <h2 className="mt-5">Why Choose Us?</h2>
       <ul className="lead">
         <li>
@@ -52,11 +41,6 @@ const About = () => {
         <li>
           <strong>Fair Pricing:</strong> Our platform ensures that both parties
           benefit from transparent and fair pricing.
-        </li>
-        <li>
-          <strong>Innovation:</strong> Our machine learning model keeps you
-          ahead of the market trends, allowing you to maximize your profits and
-          savings.
         </li>
         <li>
           <strong>Community Focused:</strong> We are committed to supporting the
