@@ -50,19 +50,18 @@ const counties = [
   "Vihiga",
   "Wajir",
   "West-Pokot",
-  "test",
 ];
 
 const PricePredictions = () => {
   const [county, setCounty] = useState("");
   const [date, setDate] = useState("");
   const [modelChoice, setModelChoice] = useState("");
-  const [maizeVariety, setMaizeVariety] = useState(""); // Dummy field
+  const [maizeVariety, setMaizeVariety] = useState("");
   const [prediction, setPrediction] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(""); // New phone number state
-  const [receiveUpdates, setReceiveUpdates] = useState(false); // New state to check if they want updates
+  const [receiveUpdates, setReceiveUpdates] = useState(false); // New state for updates
   const [countyForMessages, setCountyForMessages] = useState("");
   const [isEnabled, setIsEnabled] = useState(true);
 
@@ -70,6 +69,29 @@ const PricePredictions = () => {
     const savedHistory =
       JSON.parse(localStorage.getItem("predictionHistory")) || [];
     setHistory(savedHistory);
+
+    const fetchPreferences = async () => {
+      const token = localStorage.getItem("token");
+      const apiUrl = "https://www.maizeai.me/api/predictions/enable";
+      try {
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Error fetching preferences.");
+        }
+        const result = await response.json();
+        setIsEnabled(result.prediction.is_enabled); // Assuming the response contains the `is_enabled` field
+      } catch (error) {
+        console.error("Error fetching preferences:", error);
+      }
+    };
+
+    fetchPreferences();
   }, []);
 
   const fetchPrediction = async () => {
@@ -94,13 +116,13 @@ const PricePredictions = () => {
       }
 
       const result = await response.json();
-      setPrediction(result.prediction); // Correctly display the prediction
+      setPrediction(result.prediction);
 
       const newPrediction = {
         county,
         date,
         modelChoice,
-        predictedPrice: result.prediction, // Update with correct field
+        predictedPrice: result.prediction,
       };
 
       const updatedHistory = [...history, newPrediction];
@@ -115,17 +137,17 @@ const PricePredictions = () => {
 
   const submitPersonalizedUpdates = async () => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve the token from local storage
+      const token = localStorage.getItem("token");
       const apiUrl = "https://www.maizeai.me/api/predictions";
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the token in the request headers
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           phone_number: phoneNumber,
-          county: countyForMessages, // Send the county collected for messages
+          county: countyForMessages,
         }),
       });
 
@@ -136,6 +158,32 @@ const PricePredictions = () => {
       alert("Preferences successfully submitted.");
     } catch (error) {
       console.error("Error submitting preferences:", error);
+    }
+  };
+
+  const toggleNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const apiUrl = "https://www.maizeai.me/api/predictions/enable";
+      const response = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          is_enabled: !isEnabled, // Toggle the state
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error updating your preferences.");
+      }
+
+      const result = await response.json();
+      setIsEnabled(result.prediction.is_enabled); // Update the state based on the server response
+    } catch (error) {
+      console.error("Error updating preferences:", error);
     }
   };
 
@@ -250,14 +298,17 @@ const PricePredictions = () => {
 
         <div className="form-group">
           <h3>Personalized Updates</h3>
-          <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-            Would you like to receive updates?
-          </label>
-          <input
-            type="checkbox"
-            checked={receiveUpdates}
-            onChange={(e) => setReceiveUpdates(e.target.checked)}
-          />
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={receiveUpdates}
+                onChange={(e) => setReceiveUpdates(e.target.checked)}
+                style={{ transform: "scale(1.5)", marginRight: "10px" }}
+              />
+              Would you like to receive updates?
+            </label>
+          </div>
 
           {receiveUpdates && (
             <>
@@ -265,6 +316,7 @@ const PricePredictions = () => {
                 <label>Phone Number</label>
                 <input
                   type="text"
+                  className="form-control"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   required
@@ -274,6 +326,7 @@ const PricePredictions = () => {
               <div className="form-group">
                 <label>County (For Messages)</label>
                 <select
+                  className="form-control"
                   value={countyForMessages}
                   onChange={(e) => setCountyForMessages(e.target.value)}
                   required
@@ -288,19 +341,53 @@ const PricePredictions = () => {
               </div>
 
               <div className="form-group">
-                <label>Enable Receiving Updates</label>
-                <input
-                  type="checkbox"
-                  checked={isEnabled}
-                  onChange={(e) => setIsEnabled(e.target.checked)}
-                />
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    onChange={(e) => setIsEnabled(e.target.checked)}
+                    style={{ transform: "scale(1.5)", marginRight: "10px" }}
+                  />
+                  Enable Receiving Updates
+                </label>
               </div>
 
-              <button onClick={submitPersonalizedUpdates} disabled={!isEnabled}>
-                {isEnabled
-                  ? "Submit Phone and County for Updates"
-                  : "Disable receiving updates"}
-              </button>
+              {/* Conditionally render buttons based on the isEnabled state */}
+              <div className="form-group">
+                {isEnabled ? (
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => toggleNotifications(false)} // Disables prediction messages
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      backgroundColor: "#dc3545",
+                      borderColor: "#dc3545",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Disable Prediction Messages
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-primary"
+                    onClick={submitPersonalizedUpdates} // Enables prediction messages
+                    disabled={!phoneNumber || !countyForMessages}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      backgroundColor: "#28a745",
+                      borderColor: "#28a745",
+                      cursor:
+                        phoneNumber && countyForMessages
+                          ? "pointer"
+                          : "not-allowed",
+                    }}
+                  >
+                    Receive Maize Price Updates
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>
