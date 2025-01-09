@@ -148,6 +148,7 @@ const PricePredictions = () => {
         body: JSON.stringify({
           phone_number: phoneNumber,
           county: countyForMessages,
+          is_enabled: isEnabled, // Send the is_enabled status
         }),
       });
 
@@ -161,7 +162,7 @@ const PricePredictions = () => {
     }
   };
 
-  const toggleNotifications = async () => {
+  const toggleNotifications = async (status) => {
     try {
       const token = localStorage.getItem("token");
       const apiUrl = "https://www.maizeai.me/api/predictions/enable";
@@ -172,18 +173,19 @@ const PricePredictions = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          is_enabled: !isEnabled, // Toggle the state
+          is_enabled: status, // Update the is_enabled status
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Error updating your preferences.");
+        throw new Error("Error toggling notifications.");
       }
 
-      const result = await response.json();
-      setIsEnabled(result.prediction.is_enabled); // Update the state based on the server response
+      // Update local state after successful toggle
+      setIsEnabled(status);
+      alert(`Notifications have been ${status ? "enabled" : "disabled"}.`);
     } catch (error) {
-      console.error("Error updating preferences:", error);
+      console.error("Error toggling notifications:", error);
     }
   };
 
@@ -345,48 +347,31 @@ const PricePredictions = () => {
                   <input
                     type="checkbox"
                     checked={isEnabled}
-                    onChange={(e) => setIsEnabled(e.target.checked)}
+                    onChange={(e) => toggleNotifications(e.target.checked)}
                     style={{ transform: "scale(1.5)", marginRight: "10px" }}
                   />
                   Enable Receiving Updates
                 </label>
               </div>
 
-              {/* Conditionally render buttons based on the isEnabled state */}
               <div className="form-group">
-                {isEnabled ? (
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => toggleNotifications(false)} // Disables prediction messages
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      backgroundColor: "#dc3545",
-                      borderColor: "#dc3545",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Disable Prediction Messages
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-primary"
-                    onClick={submitPersonalizedUpdates} // Enables prediction messages
-                    disabled={!phoneNumber || !countyForMessages}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      backgroundColor: "#28a745",
-                      borderColor: "#28a745",
-                      cursor:
-                        phoneNumber && countyForMessages
-                          ? "pointer"
-                          : "not-allowed",
-                    }}
-                  >
-                    Receive Maize Price Updates
-                  </button>
-                )}
+                <button
+                  className="btn btn-primary"
+                  onClick={submitPersonalizedUpdates}
+                  disabled={!phoneNumber || !countyForMessages}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    backgroundColor: "#28a745",
+                    borderColor: "#28a745",
+                    cursor:
+                      phoneNumber && countyForMessages
+                        ? "pointer"
+                        : "not-allowed",
+                  }}
+                >
+                  Receive Maize Price Updates
+                </button>
               </div>
             </>
           )}
